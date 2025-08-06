@@ -263,16 +263,3 @@ class IrisApiClient(
         }
     }
 }
-
-
-suspend fun main() {
-    val api = IrisApiClient(6897200170, "s4XhNs6Gm2i2ngbDNv")
-
-//    val a = api.giveSweets(
-//        1, 5858412531, "хуй", withoutDonateScore = true
-//    )
-
-    println(api.enableOrDisablePocket(true))
-    println(api.allowOrDenyUserPocket(5858412531, true))
-
-}
