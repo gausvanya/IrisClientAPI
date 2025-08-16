@@ -44,7 +44,7 @@ class IrisApiClient(
         userId: Long,
         comment: String? = null,
         withoutDonateScore: Boolean = true
-    ): String? {
+    ): ResponseResult? {
         /**
          * count - Число ирисок которое вы хотите передать.
          * userId Уникальный индетификатор Telegram получателя ирисок.
@@ -72,7 +72,7 @@ class IrisApiClient(
         userId: Long,
         comment: String? = null,
         withoutDonateScore: Boolean = true
-    ): String? {
+    ): ResponseResult? {
         /**
          * count - Число голд которое вы хотите передать.
          * userId Уникальный индетификатор Telegram получателя голд.
@@ -123,7 +123,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun enableOrDisablePocket(enable: Boolean = true): String? {
+    suspend fun enableOrDisablePocket(enable: Boolean = true): ResponseResult? {
         /**
          * Включение/отключение возможности открытия мешка бота пользователями.
          */
@@ -134,19 +134,18 @@ class IrisApiClient(
     }
 
 
-    suspend fun enableOrDisableAllPocket(enable: Boolean = true): String? {
+    suspend fun enableOrDisableAllPocket(enable: Boolean = true): ResponseResult? {
         /**
          * Включение/отключение возможности передачи валюты боту для всех пользователяй.
          */
 
         val method = if (enable) "pocket/allow_all" else "pocket/deny_all"
-        println(method)
 
         return enableDisablePocket(method)
     }
 
 
-    suspend fun allowOrDenyUserPocket(userId: Long, enable: Boolean): String? {
+    suspend fun allowOrDenyUserPocket(userId: Long, enable: Boolean): ResponseResult? {
         /**
          * userId Уникальный индетификатор Telegram получателя голд.
          *
@@ -159,7 +158,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun allowDenyUserPocket(userId: Long, method: String): String? {
+    private suspend fun allowDenyUserPocket(userId: Long, method: String): ResponseResult? {
         return withContext(Dispatchers.IO) {
 
             try {
@@ -167,7 +166,10 @@ class IrisApiClient(
                     parameter("user_id", userId)
                 }
 
-                response.bodyAsText()
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<ResponseResult>(jsonResult)
+                } else null
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при попытке переключить доступ к переводам $e" }
@@ -177,12 +179,16 @@ class IrisApiClient(
     }
 
 
-    private suspend fun enableDisablePocket(method: String): String? {
+    private suspend fun enableDisablePocket(method: String): ResponseResult? {
         return withContext(Dispatchers.IO) {
 
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method")
-                response.bodyAsText()
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<ResponseResult>(jsonResult)
+                } else null
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при попытке переключить доступ к мешку $e" }
@@ -198,7 +204,7 @@ class IrisApiClient(
         comment: String?,
         withoutDonateScore: Boolean,
         method: String
-    ) : String?
+    ) : ResponseResult?
     {
         return withContext(Dispatchers.IO) {
 
@@ -212,7 +218,10 @@ class IrisApiClient(
                     parameter("without_donate_score", withoutDonateScore)
                 }
 
-                response.bodyAsText()
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<ResponseResult>(jsonResult)
+                } else null
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при отправке передать валюту $e" }
@@ -230,9 +239,7 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<BalanceData>(jsonResult)
-                } else {
-                    null
-                }
+                } else null
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при получение баланса бота $e" }
@@ -252,9 +259,7 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<List<HistoryData>>(jsonResult)
-                } else {
-                    emptyList()
-                }
+                } else emptyList()
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при получение истории обмена валют $e" }
