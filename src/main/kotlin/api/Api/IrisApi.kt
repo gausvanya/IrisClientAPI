@@ -90,7 +90,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun balance(): BalanceData? {
+    suspend fun balance(): Any? {
         /**
          * Получение баланса вашего бота.
           */
@@ -101,7 +101,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun sweetsHistory(offset: Int = 0): List<HistoryData>? {
+    suspend fun sweetsHistory(offset: Int = 0): Any? {
         /**
          * Получение истории путешествий ирисок
          */
@@ -112,7 +112,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun goldHistory(offset: Int = 0): List<HistoryData>? {
+    suspend fun goldHistory(offset: Int = 0): Any? {
         /**
          * Получение истории путешествий голд
          */
@@ -169,7 +169,11 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<ResponseResult>(jsonResult)
-                } else null
+                } else {
+                    ResponseResult(result = false, error = APIError(
+                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                    )
+                }
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при попытке переключить доступ к переводам $e" }
@@ -188,7 +192,11 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<ResponseResult>(jsonResult)
-                } else null
+                } else {
+                    ResponseResult(result = false, error = APIError(
+                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                    )
+                }
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при попытке переключить доступ к мешку $e" }
@@ -221,17 +229,21 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<ResponseResult>(jsonResult)
-                } else null
+                } else {
+                    ResponseResult(result = false, error = APIError(
+                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                    )
+                }
 
             } catch (e: IrisResponseException) {
-                logger.error { "Ошибка при отправке передать валюту $e" }
+                logger.error { "Ошибка при попытке передать валюту $e" }
                 null
             }
         }
     }
 
 
-    private suspend fun getBalance(method: String) : BalanceData? {
+    private suspend fun getBalance(method: String) : Any? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method")
@@ -239,7 +251,11 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<BalanceData>(jsonResult)
-                } else null
+                } else {
+                    ResponseResult(result = false, error = APIError(
+                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                    )
+                }
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при получение баланса бота $e" }
@@ -249,7 +265,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getHistory(offset: Int, method: String): List<HistoryData>? {
+    private suspend fun getHistory(offset: Int, method: String): Any? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
@@ -259,11 +275,15 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<List<HistoryData>>(jsonResult)
-                } else emptyList()
+                } else {
+                    ResponseResult(result = false, error = APIError(
+                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                    )
+                }
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при получение истории обмена валют $e" }
-                emptyList()
+                null
             }
         }
     }
