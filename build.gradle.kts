@@ -1,11 +1,13 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
-    id("maven-publish")
-    kotlin("jvm") version "2.2.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     kotlin("plugin.serialization") version "2.2.0"
+    kotlin("jvm") version "2.2.0"
 }
 
 group = "org.iris-api-support"
-version = "1.1"
+version = "1.0"
 
 
 repositories {
@@ -32,23 +34,8 @@ kotlin {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenKotlin") {
-            groupId = project.group.toString()
-            artifactId = project.name
-            version = project.version.toString()
-
-            from(components["java"])
-        }
-    }
-    repositories {
-        mavenLocal()
-    }
-}
-
-tasks.register("hello") {
-    doLast {
-        println("Hello from Gradle with JDK: ${System.getProperty("java.home")}")
-    }
+tasks.withType<ShadowJar> {
+    archiveBaseName.set("IrisApiClient-${project.version}")
+    archiveFileName.set("IrisApiClient-${project.version}.jar")
+    archiveClassifier.set("standalone")
 }
