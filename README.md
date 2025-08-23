@@ -9,5 +9,5 @@
   - Настройка блокировки/разблокировки возможности переводов валюты
 
 Контакты для связи:
-[Telegram](https://t.me/gausvanya)\n
+[Telegram](https://t.me/gausvanya)  
 Чат помощи [Iris Connect](https://t.me/+AweQAYgm5hwyNjky)
