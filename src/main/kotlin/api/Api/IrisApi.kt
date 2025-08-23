@@ -13,13 +13,14 @@ import io.ktor.client.engine.okhttp.*
 
 import kotlinx.serialization.json.Json
 
+private const val apiVersion = "0.1"
 
 
 
 class IrisApiClient(
     val botId: Long,
     val irisToken: String,
-    private val baseURL: String = "https://iris-tg.ru/api/${botId}_$irisToken"
+    private val baseURL: String = "https://iris-tg.ru/api/${botId}_$irisToken/v$apiVersion"
 ) {
     /**
      * botId - Уникальный индитификатор вашего Telegram бота.
