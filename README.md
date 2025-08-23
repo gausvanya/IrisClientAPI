@@ -14,7 +14,7 @@
   
   
 # Примеры использования:
-```
+```kotlin
 suspend fun main() {
     // Укажите свои botId и IrisToken
     val api = IrisApiClient(botId = 123456789, irisToken = "exampleToken")
