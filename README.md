@@ -10,3 +10,4 @@
 
 Контакты для связи:
 [Telegram](https://t.me/gausvanya)
+Чат помощи [Iris Connect](https://t.me/+AweQAYgm5hwyNjky)
