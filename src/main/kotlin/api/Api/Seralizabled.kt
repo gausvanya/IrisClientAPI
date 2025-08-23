@@ -1,4 +1,4 @@
-package api.Api
+package IrisClientAPI.Api
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames

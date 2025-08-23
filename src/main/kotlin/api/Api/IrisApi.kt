@@ -1,4 +1,4 @@
-package api.Api
+package IrisClientAPI.Api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
@@ -13,14 +13,14 @@ import io.ktor.client.engine.okhttp.*
 
 import kotlinx.serialization.json.Json
 
-private const val apiVersion = "0.1"
+private const val irisApiVersion = "0.1"
 
 
 
 class IrisApiClient(
     val botId: Long,
     val irisToken: String,
-    private val baseURL: String = "https://iris-tg.ru/api/${botId}_$irisToken/v$apiVersion"
+    private val baseURL: String = "https://iris-tg.ru/api/${botId}_$irisToken/v$irisApiVersion"
 ) {
     /**
      * botId - Уникальный индитификатор вашего Telegram бота.
@@ -195,7 +195,8 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(result = false, error = APIError(
-                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                        code = response.status.toString().toInt(), description = response.bodyAsText()
+                    )
                     )
                 }
 

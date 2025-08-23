@@ -1,4 +1,4 @@
-package api.Api
+package IrisClientAPI.Api
 
 class IrisResponseException(message: String) : Exception(message)
 
