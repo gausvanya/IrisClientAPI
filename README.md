@@ -9,4 +9,4 @@
   - Настройка блокировки/разблокировки возможности переводов валюты
 
 Контакты для связи:
-[Telegram][https://t.me/gausvanya]
+[Telegram](https://t.me/gausvanya)
