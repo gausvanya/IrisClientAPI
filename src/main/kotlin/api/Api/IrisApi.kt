@@ -172,8 +172,9 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(result = false, error = APIError(
-                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                        code = response.status.value, description = response.bodyAsText())
                     )
+                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
                 }
 
             } catch (e: IrisResponseException) {
@@ -195,9 +196,9 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(result = false, error = APIError(
-                        code = response.status.toString().toInt(), description = response.bodyAsText()
+                        code = response.status.value, description = response.bodyAsText())
                     )
-                    )
+                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
                 }
 
             } catch (e: IrisResponseException) {
@@ -233,8 +234,9 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(result = false, error = APIError(
-                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                        code = response.status.value, description = response.bodyAsText())
                     )
+                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
                 }
 
             } catch (e: IrisResponseException) {
@@ -255,8 +257,9 @@ class IrisApiClient(
                     json.decodeFromString<BalanceData>(jsonResult)
                 } else {
                     ResponseResult(result = false, error = APIError(
-                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                        code = response.status.value, description = response.bodyAsText())
                     )
+                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
                 }
 
             } catch (e: IrisResponseException) {
@@ -279,8 +282,9 @@ class IrisApiClient(
                     json.decodeFromString<List<HistoryData>>(jsonResult)
                 } else {
                     ResponseResult(result = false, error = APIError(
-                        code = response.status.toString().toInt(), description = response.bodyAsText())
+                        code = response.status.value, description = response.bodyAsText())
                     )
+                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
                 }
 
             } catch (e: IrisResponseException) {
@@ -289,4 +293,47 @@ class IrisApiClient(
             }
         }
     }
+}
+
+
+suspend fun main() {
+    // Укажите свои botId и IrisToken
+    val api = IrisApiClient(botId = 123456789, irisToken = "exampleToken")
+
+
+    // Получение истории Голд и Ирисок
+    val getHistoryGold = api.goldHistory()
+    println(getHistoryGold)
+
+    val getHistorySweets = api.sweetsHistory()
+    println(getHistorySweets)
+
+
+    // Получение баланса мешка
+    val getBalance = api.balance()
+    println(getBalance)
+
+
+    // Перевод Голд и Ирисок в другой мешок
+    api.giveGold(count = 1, userId = 12345, comment = "Тестирование")
+
+    api.giveSweets(count = 1, userId = 12345, comment = "Тестирование")
+
+
+    // Включение/выключение возможности открывать мешок бота
+    api.enableOrDisablePocket(enable = true)
+
+    api.enableOrDisablePocket(enable = false)
+
+
+    // Запретить/разрешить всем переводить валюту боту
+    api.enableOrDisableAllPocket(enable = false)
+
+    api.enableOrDisableAllPocket(enable = true)
+
+
+    // Запретить/разрешить конкретному пользователю переводить валюту боту
+    api.allowOrDenyUserPocket(userId = 123456789, enable = false)
+
+    api.allowOrDenyUserPocket(userId = 123456789, enable = true)
 }
