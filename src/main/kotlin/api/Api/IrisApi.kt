@@ -41,7 +41,7 @@ class IrisTradesApi(
     }
 
 
-    suspend fun getDeals(id: Int = 0) : Any? {
+    suspend fun getDeals(id: Int = 0) : List<TradesDealsResponse>? {
         /**
          * Метод получения сделок с голд на бирже
          * id - индитификатор сделки от которого начнется ответ API, вернет 200 сделок
@@ -72,7 +72,7 @@ class IrisTradesApi(
     }
 
 
-    private suspend fun dealsResponse(id: Int) : Any? {
+    private suspend fun dealsResponse(id: Int) : List<TradesDealsResponse>? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.post(tradeDealsBaseURL) {
@@ -83,11 +83,6 @@ class IrisTradesApi(
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<List<TradesDealsResponse>>(jsonResult)
                 } else {
-                    ResponseResult(
-                        result = false, error = APIError(
-                            code = response.status.value, description = response.bodyAsText()
-                        )
-                    )
                     throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
                 }
 
@@ -379,12 +374,4 @@ class IrisApiClient(
             }
         }
     }
-}
-
-
-suspend fun main() {
-    val api = IrisTradesApi()
-
-    val a = api.getDeals()
-    println(a)
 }
