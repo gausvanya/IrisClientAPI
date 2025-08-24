@@ -43,7 +43,7 @@ class IrisTradesApi(
     suspend fun getDeals(id: Int = 0) : List<TradesDealsResponse>? {
         /**
          * Метод получения сделок с голд на бирже
-         * id - индитификатор сделки от которого начнется ответ API, вернет 200 сделок
+         * id - индетификатор сделки от которого начнется ответ API, вернет 200 сделок
          */
         return dealsResponse(id)
     }
@@ -101,7 +101,7 @@ class IrisApiClient(
 )
 {
     /**
-     * botId - Уникальный индитификатор вашего Telegram бота.
+     * botId - Уникальный индетификатор вашего Telegram бота.
      * irisToken - Секретный ключ для подключения к IrisAPI. Для получения отправьте команду '+ирис коннект'
      * в ЛС https://t.me/iris_black_bot и следуйте инструкциям.
      */
