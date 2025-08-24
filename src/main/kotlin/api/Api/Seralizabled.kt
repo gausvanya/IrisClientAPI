@@ -7,8 +7,8 @@ import kotlinx.serialization.json.JsonNames
 @Serializable
 data class HistoryData(
     val date: Long,
-    val amount: Float,
-    val balance: Float,
+    val amount: Double,
+    val balance: Double,
     @JsonNames("to_user_id")
     val toUserId: Long,
     val id: Int,
@@ -22,14 +22,14 @@ data class InfoData(
     val donateScore: Int? = null,
     val sweets: Int? = null,
     val golds: Int? = null,
-    val commission: Float? = null
+    val commission: Double? = null
 )
 
 
 @Serializable
 data class BalanceData(
-    val gold: Float,
-    val sweets: Float,
+    val gold: Double,
+    val sweets: Double,
     @JsonNames("donate_score")
     val donateScore: Int,
 )
