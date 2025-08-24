@@ -17,11 +17,97 @@ private const val irisApiVersion = "0.1"
 
 
 
+class IrisTradesApi(
+    private val tradeOrderBookBaseURL: String = "https://iris-tg.ru/k/trade/order_book",
+    private val tradeDealsBaseURL: String = "https://iris-tg.ru/trade/deals"
+)
+{
+    private val json = Json { ignoreUnknownKeys = true }
+    private val logger = KotlinLogging.logger {}
+    private val httpClient = HttpClient(OkHttp) {
+        engine {
+            config {
+                followRedirects(true)
+            }
+        }
+    }
+
+
+    suspend fun getOrderBook() : TradesOrderBookTypesResponse? {
+        /**
+         * Метод получения стакана заявок биржи
+         */
+        return orderBookResponse()
+    }
+
+
+    suspend fun getDeals(id: Int = 0) : Any? {
+        /**
+         * Метод получения сделок с голд на бирже
+         * id - индитификатор сделки от которого начнется ответ API, вернет 200 сделок
+         */
+        return dealsResponse(id)
+    }
+
+
+    private suspend fun orderBookResponse() : TradesOrderBookTypesResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.post(tradeOrderBookBaseURL)
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString(
+                        TradesOrderBookTypesResponse.serializer(), jsonResult
+                    )
+                } else {
+                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+                }
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке получить стакана заявок биржи $e" }
+                null
+            }
+        }
+    }
+
+
+    private suspend fun dealsResponse(id: Int) : Any? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.post(tradeDealsBaseURL) {
+                    parameter("id", id)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<List<TradesDealsResponse>>(jsonResult)
+                } else {
+                    ResponseResult(
+                        result = false, error = APIError(
+                            code = response.status.value, description = response.bodyAsText()
+                        )
+                    )
+                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+                }
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке получить стакана заявок биржи $e" }
+                null
+            }
+        }
+    }
+}
+
+
+
+
 class IrisApiClient(
     val botId: Long,
     val irisToken: String,
     private val baseURL: String = "https://iris-tg.ru/api/${botId}_$irisToken/v$irisApiVersion"
-) {
+)
+{
     /**
      * botId - Уникальный индитификатор вашего Telegram бота.
      * irisToken - Секретный ключ для подключения к IrisAPI. Для получения отправьте команду '+ирис коннект'
@@ -293,4 +379,12 @@ class IrisApiClient(
             }
         }
     }
+}
+
+
+suspend fun main() {
+    val api = IrisTradesApi()
+
+    val a = api.getDeals()
+    println(a)
 }

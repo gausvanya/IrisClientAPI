@@ -1,5 +1,6 @@
 package IrisClientAPI.Api
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
@@ -26,6 +27,7 @@ data class InfoData(
 )
 
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class BalanceData(
     val gold: Double,
@@ -46,4 +48,29 @@ data class ResponseResult(
 data class APIError(
     val code: Int,
     val description: String
+)
+
+
+@Serializable
+data class TradesOrderBookResponse(
+    val volume: Int,
+    val price: Double
+)
+
+
+@Serializable
+data class TradesOrderBookTypesResponse(
+    val buy: List<TradesOrderBookResponse>,
+    val sell: List<TradesOrderBookResponse>
+)
+
+
+@Serializable
+data class TradesDealsResponse(
+    val id: Long,
+    @JsonNames("group_id")
+    val groupId: Long,
+    val date: Double,
+    val volume: Int,
+    val type: String
 )
