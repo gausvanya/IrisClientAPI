@@ -63,6 +63,50 @@ suspend fun main() {
     api.allowOrDenyUserPocket(userId = 123456789, enable = true)
 }
 ```
+
+# Пример использования API биржи:  
+```kotlin
+suspend fun main() {
+    // Создаем объект класса API
+    val api = IrisTradesApi()
+
+
+    // Метод получения сделок с голд на бирже, имеется параметр id
+    val deals = api.getDeals()
+
+    if (deals != null) {
+        for (deal in deals) {
+            val id = deal.id
+            val volume = deal.volume
+            val date = deal.date
+            val groupId = deal.groupId
+            val type = deal.type
+            println("id=$id, volume=$volume, date=$date, groupId=$groupId, type=$type")
+        }
+    }
+
+    // Метод получения стакана заявок биржи
+    val orderBook = api.getOrderBook()
+
+    if (orderBook != null) {
+        val buys = orderBook.buy
+        val sells = orderBook.sell
+
+        for (buy in buys) {
+            val price = buy.price
+            val volume = buy.volume
+            println("buys: id=$price, volume=$volume")
+
+        }
+
+        for (sell in sells) {
+            val price = sell.price
+            val volume = sell.volume
+            println("sells: id=$price, volume=$volume")
+        }
+    }
+}
+```
   
 📞 Контакт для связи: [Telegram](https://t.me/gausvanya)  
   
