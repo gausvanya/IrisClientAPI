@@ -16,7 +16,6 @@ import kotlinx.serialization.json.Json
 private const val irisApiVersion = "0.1"
 
 
-
 class IrisTradesApi(
     private val tradeOrderBookBaseURL: String = "https://iris-tg.ru/k/trade/order_book",
     private val tradeDealsBaseURL: String = "https://iris-tg.ru/trade/deals"
@@ -93,8 +92,6 @@ class IrisTradesApi(
         }
     }
 }
-
-
 
 
 class IrisApiClient(
