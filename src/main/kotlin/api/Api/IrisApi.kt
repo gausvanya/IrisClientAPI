@@ -13,7 +13,7 @@ import io.ktor.client.engine.okhttp.*
 
 import kotlinx.serialization.json.Json
 
-private const val irisApiVersion = "0.1"
+private const val irisApiVersion = "0.2"
 
 
 class IrisTradesApi(
@@ -139,7 +139,6 @@ class IrisApiClient(
 
         if (comment != null && comment.length > 128) {
             throw LimitCommentLengthException("Максимальная длинна комментария не должна превышать 128 символов")
-
         }
 
         return giveCurrency(count, userId, comment, withoutDonateScore, method)
@@ -163,6 +162,10 @@ class IrisApiClient(
 
         if (count <= 0) {
             throw CurrencyCountZeroException("Число голд не может быть нулевым или отрицательным")
+        }
+
+        if (comment != null && comment.length > 128) {
+            throw LimitCommentLengthException("Максимальная длинна комментария не должна превышать 128 символов")
         }
 
         return giveCurrency(count, userId, comment, withoutDonateScore, method)
@@ -236,10 +239,40 @@ class IrisApiClient(
         return allowDenyUserPocket(userId, method)
     }
 
+    suspend fun updates(offset: Int = 0) : List<UpdatesLog>? {
+        /**
+         * Получение логов обновлений
+         */
+
+        val method = "getUpdates"
+        return getUpdates(offset, method)
+    }
+
+
+    private suspend fun getUpdates(offset: Int, method: String) : List<UpdatesLog>? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.post("$baseURL/$method") {
+                    parameter("offset", offset)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<List<UpdatesLog>>(jsonResult)
+                } else {
+                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+                }
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке переключить доступ к переводам $e" }
+                null
+            }
+        }
+    }
+
 
     private suspend fun allowDenyUserPocket(userId: Long, method: String): ResponseResult? {
         return withContext(Dispatchers.IO) {
-
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
                     parameter("user_id", userId)
@@ -371,4 +404,11 @@ class IrisApiClient(
             }
         }
     }
+}
+
+
+suspend fun main() {
+    val api = IrisApiClient(6897200170, "cH2i6pwEqcpDWmSaEOrEaUWjfqda52Lj")
+
+    println(api.updates())
 }

@@ -5,26 +5,33 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class HistoryData(
+    val id: Int,
+    val type: String,
     val date: Long,
     val amount: Double,
     val balance: Double,
+    @JsonNames("peer_id")
+    val peerId: Long,
     @JsonNames("to_user_id")
     val toUserId: Long,
-    val id: Int,
-    val type: String,
-    val info: InfoData
-)
+    val details: DetailsHistoryData? = null,
+    val comment: String? = null,
+    // val metadata = null,
+    )
 
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class InfoData(
+data class DetailsHistoryData(
+    val total: Int? = null,
+    val amount: Int? = null,
+    @JsonNames("donate_score")
     val donateScore: Int? = null,
-    val sweets: Int? = null,
-    val golds: Int? = null,
-    val commission: Double? = null
-)
+    val fee: Double? = null
+    )
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -37,7 +44,18 @@ data class BalanceData(
 )
 
 
-@Serializable()
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class UpdatesLog(
+    val id: Int,
+    val date: Long,
+    val type: String,
+    @JsonNames("object")
+    val obj: HistoryData? = null
+)
+
+
+@Serializable
 data class ResponseResult(
     val result: Boolean? = null,
     val error: APIError? = null
@@ -65,6 +83,7 @@ data class TradesOrderBookTypesResponse(
 )
 
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class TradesDealsResponse(
     val id: Long,
