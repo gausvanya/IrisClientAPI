@@ -405,10 +405,3 @@ class IrisApiClient(
         }
     }
 }
-
-
-suspend fun main() {
-    val api = IrisApiClient(6897200170, "cH2i6pwEqcpDWmSaEOrEaUWjfqda52Lj")
-
-    println(api.updates())
-}
