@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.iris-api-support"
-version = "1.1"
+version = "1.2"
 
 
 repositories {
@@ -18,10 +18,12 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("io.ktor:ktor-client-core:3.2.3")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
-    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("io.ktor:ktor-client-content-negotiation:3.2.3")
     implementation("io.ktor:ktor-client-okhttp-jvm:3.2.3")
+    implementation("io.ktor:ktor-client-core:3.2.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.2.3")
 }
 
 java {
