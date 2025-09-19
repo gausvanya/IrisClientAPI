@@ -585,10 +585,3 @@ class IrisApiClient(
     }
 }
 
-
-suspend fun main() {
-    // Укажите свои botId и IrisToken
-    val api = IrisApiClient(botId = 6897200170, irisToken = "cH2i6pwEqcpDWmSaEOrEaUWjfqda52Lj")
-
-    api.giveDonateScore(1, 5858412531, "хуй")
-}
