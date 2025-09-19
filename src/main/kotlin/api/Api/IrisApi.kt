@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-private const val irisApiVersion = "0.2"
+private const val irisApiVersion = "0.3"
 
 
 class IrisTradesApi(
@@ -181,7 +181,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getBalance(): Any? {
+    suspend fun getBalance(): BalanceData? {
         /**
          * Получение баланса вашего бота.
          */
@@ -192,7 +192,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getSweetsHistory(offset: Int = 0): Any? {
+    suspend fun getSweetsHistory(offset: Int = 0): List<HistoryData>? {
         /**
          * Получение истории путешествий ирисок
          */
@@ -203,7 +203,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getGoldHistory(offset: Int = 0): Any? {
+    suspend fun getGoldHistory(offset: Int = 0): List<HistoryData>? {
         /**
          * Получение истории путешествий голд
          */
@@ -213,7 +213,7 @@ class IrisApiClient(
         return getHistoryResponse(offset, method)
     }
 
-    suspend fun getDonateScoreHistory(offset: Int = 0): Any? {
+    suspend fun getDonateScoreHistory(offset: Int = 0): List<HistoryData>? {
         /**
          * Получение истории путешествий пончиков
          */
@@ -279,6 +279,13 @@ class IrisApiClient(
 
 
     fun generateDeepLink(currency: Currencies, count: Int, comment: String? = null): String {
+        /**
+         * currency - валюта, на основе которой будет создана ссылка
+         * count - количество валюты
+         * comment - комментарий к переводу
+         * Генерация deep-link для взаимодейстия с валютами бота
+         */
+
         if (count <= 0) {
             throw CurrencyCountZeroException("Число не может быть нулевым или отрицательным")
         }
@@ -295,14 +302,117 @@ class IrisApiClient(
             }
         }
 
-         var url = when(currency) {
-            Currencies.GOLD -> "https://t.me/iris_cm_bot?start=givegold_bot${botId}_${count}"
-            Currencies.SWEETS -> "https://t.me/iris_cm_bot?start=give_bot${botId}_${count}"
-            Currencies.DONATE_SCOPE -> "https://t.me/iris_cm_bot?start=givedonate_score_bot${botId}_${count}"
+        var url = when (currency) {
+            Currencies.GOLD -> "https://t.me/iris_black_bot?start=givegold_bot${botId}_${count}"
+            Currencies.SWEETS -> "https://t.me/iris_black_bot?start=give_bot${botId}_${count}"
+            Currencies.DONATE_SCOPE -> "https://t.me/iris_black_bot?start=givedonate_score_bot${botId}_${count}"
         }
 
         if (comment != null) url = url + "_$comment"
         return url
+    }
+
+    fun generateBotPermissionsDeepLink(permissions: List<BotPermissions>): String {
+        /**
+         * permissions - список разрешенний бота, которые необходимо погрузить в deep-link
+         * Генерация deep-link для выдачи разрешения боту
+         */
+
+        var url = "https://t.me/iris_black_bot?start=request_rights_$botId"
+
+        for (permission in permissions) {
+            url = url + "_${permission.name.lowercase()}"
+        }
+        return url
+    }
+
+
+    suspend fun checkUserReg(userId: Long): UserRegInfoResponse? {
+        /**
+         * userId Уникальный индетификатор Telegram получателя голд.
+         * Получение даты первого появления во вселенной ириса
+         */
+
+        val method = "user_info/reg"
+
+        return getUserInfoResponse(userId, method)
+    }
+
+
+    suspend fun checkUserSpam(userId: Long): UserSpamInfoResponse? {
+        /**
+         * userId Уникальный индетификатор Telegram получателя голд.
+         * Получение информации о нахождение пользователя в спам/гнор/скам базах ириса
+         */
+
+        val method = "user_info/spam"
+
+        return getUserInfoResponse(userId, method)
+    }
+
+
+    suspend fun checkUserActivity(userId: Long): UserActivityInfoResponse? {
+        /**
+         * userId Уникальный индетификатор Telegram получателя голд.
+         * Получение статистики активности пользователя в чатах ириса
+         */
+
+        val method = "user_info/activity"
+
+        return getUserInfoResponse(userId, method)
+    }
+
+
+    suspend fun checkUserStars(userId: Long): UserStarsInfoResponse? {
+        /**
+         * userId Уникальный индетификатор Telegram получателя голд.
+         * Получение информации о звездочности пользователя в ирисе
+         */
+
+        val method = "user_info/stars"
+
+        return getUserInfoResponse(userId, method)
+    }
+
+
+    suspend fun checkUserPocket(userId: Long): UserPocketInfoResponse? {
+        /**
+         * userId Уникальный индетификатор Telegram получателя голд.
+         * Получение информации о мешке пользователя в ирисе
+         */
+
+        val method = "user_info/pocket"
+
+        return getUserInfoResponse(userId, method)
+    }
+
+
+    private suspend fun <T> getUserInfoResponse(userId: Long, method: String): T? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.post("$baseURL/$method") {
+                    parameter("user_id", userId)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+
+                    val result = when (method) {
+                        BotPermissions.REG.getValue() -> json.decodeFromString<UserRegInfoResponse>(jsonResult) as T
+                        BotPermissions.ACTIVITY.getValue() -> json.decodeFromString<UserActivityInfoResponse>(jsonResult) as T
+                        BotPermissions.SPAM.getValue() -> json.decodeFromString<UserSpamInfoResponse>(jsonResult) as T
+                        BotPermissions.STARS.getValue() -> json.decodeFromString<UserStarsInfoResponse>(jsonResult) as T
+                        BotPermissions.POCKET.getValue() -> json.decodeFromString<UserPocketInfoResponse>(jsonResult) as T
+                        else -> throw IllegalArgumentException("Аргумент не найден: $method")
+                    }
+                    result
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке получить информацию о пользователе $e" }
+                null
+            }
+        }
     }
 
 
@@ -398,7 +508,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getBalanceResponse(method: String): Any? {
+    private suspend fun getBalanceResponse(method: String): BalanceData? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method")
@@ -406,14 +516,7 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<BalanceData>(jsonResult)
-                } else {
-                    ResponseResult(
-                        result = false, error = APIError(
-                            code = response.status.value, description = response.bodyAsText()
-                        )
-                    )
-                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
-                }
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при получение баланса бота $e" }
@@ -423,7 +526,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getHistoryResponse(offset: Int, method: String): Any? {
+    private suspend fun getHistoryResponse(offset: Int, method: String): List<HistoryData>? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
@@ -433,14 +536,7 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<List<HistoryData>>(jsonResult)
-                } else {
-                    ResponseResult(
-                        result = false, error = APIError(
-                            code = response.status.value, description = response.bodyAsText()
-                        )
-                    )
-                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
-                }
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при получение истории обмена валют $e" }
@@ -461,9 +557,7 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<List<UpdatesLog>>(jsonResult)
-                } else {
-                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
-                }
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при попытке переключить доступ к переводам $e" }
@@ -481,14 +575,7 @@ class IrisApiClient(
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
                     json.decodeFromString<List<Long>>(jsonResult)
-                } else {
-                    ResponseResult(
-                        result = false, error = APIError(
-                            code = response.status.value, description = response.bodyAsText()
-                        )
-                    )
-                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
-                }
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при получение истории обмена валют $e" }
