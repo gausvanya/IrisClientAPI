@@ -4,8 +4,11 @@
 
 # Возможности библиботеки:
   - Получение баланса мешка бота
-  - Получение истории Ирисок и голд
-  - Перевод Голд и Ирисок между ботом и пользователями
+  - Получение истории ирисок, голд и очков доната
+  - Получение актуального списка агентов ириса
+  - Получение информации о аккаунте пользоваталея (дата первого появления во вселенной ириса, активность в чатах ириса, наличие в спам-базах ириса, валюты в мешке пользователя)
+  - Перевод голд, ирисок и очков доната между ботом и пользователями
+  - Генерация deep-links для взаимодействия с ирисом 
   - Управление доступом пользователей к мешку вашего бота
   - Настройка блокировки/разблокировки возможности переводов валюты боту 
   
@@ -18,53 +21,90 @@
  - В личные сообщения [Iris | Black Diamond](https://t.me/iris_black_bot) отправьте команду: +ирис коннект
  - Выполните требования бота для проверки и получите свой токен
  - Сбросить токен можно по команде: коннект сбросить токен @BotId
+
+
+# Способы пополнения валют бота:
+ - Через сгенерированные deep-links
+ - Пополнить бота [без од] {число} @бот — переводит боту число ирисок.  без од —  передать без очков доната (необязательный параметр)
+ - Ппополнить бота голд [без од] {число} @бот — переводит боту число золотых ирисок.  без од —  передать без очков доната (необязательный параметр)
+ - Пополнить бота од {число} @бот — переводит боту число очков доната
   
 # Примеры использования:
 ```kotlin
 suspend fun main() {
     // Укажите свои botId и IrisToken
-    val api = IrisApiClient(botId = 123456789, irisToken = "exampleToken")
+    val api = IrisApiClient(botId = 6897200170, irisToken = "cH2i6pwEqcpDWmSaEOrEaUWjfqda52Lj")
 
-
-    // Получение истории Голд и Ирисок
+    // Получение истории голд, ирисок и очков доната
     val historyGold = api.getGoldHistory()
-    println(historyGold)
-
     val historySweets = api.getSweetsHistory()
+    val historyDonateScore = api.getDonateScoreHistory()
+    println(historyGold)
     println(historySweets)
+    println(historyDonateScore)
 
-
-    // Получение баланса мешка
+    // Получение баланса мешка бота
     val balance = api.getBalance()
     println(balance)
 
-
-    // Перевод Голд и Ирисок в другой мешок
-    api.giveGold(count = 1, userId = 12345, comment = "Тестирование")
-
-    api.giveSweets(count = 1, userId = 12345, comment = "Тестирование")
-
+    // Перевод голд, ирисок и очков доната в другой мешок
+    api.giveGold(count = 1, userId = 12345, comment = "Тестирование голд")
+    api.giveSweets(count = 1, userId = 12345, comment = "Тестирование ирисок")
+    api.giveDonateScore(count = 1, userId = 12345, comment = "Тестирование очков доната")
 
     // Включение/выключение возможности открывать мешок бота
     api.enableOrDisablePocket(enable = true)
-
     api.enableOrDisablePocket(enable = false)
-
 
     // Запретить/разрешить всем переводить валюту боту
     api.enableOrDisableAllPocket(enable = false)
-
     api.enableOrDisableAllPocket(enable = true)
-
 
     // Запретить/разрешить конкретному пользователю переводить валюту боту
     api.allowOrDenyUserPocket(userId = 123456789, enable = false)
-
     api.allowOrDenyUserPocket(userId = 123456789, enable = true)
 
     // Получение списка действующих агентов ириса.
     val irisAgents = api.getIrisAgents()
     println(irisAgents)
+
+    // Получение списка обновлений
+    val updates = api.getUpdates()
+    if (updates != null) {
+        for (update in updates) println(update)
+    }
+
+    // Генерация deep-links на примере ирисок, так же поддерживаются голд и очки доната
+    val goldDeepLink = api.generateDeepLink(currency = Currencies.SWEETS, count = 1, comment = "тест_ирисок")
+    println(goldDeepLink)
+
+    // Генеарция deel-link для выдачи боту прав доступа к пользовательским данным ириса
+    val botPermissionsDeelLink = api.generateBotPermissionsDeepLink(
+        permissions = listOf(
+            BotPermissions.REG,
+            BotPermissions.ACTIVITY
+        )
+    )
+    println(botPermissionsDeelLink)
+
+    // Получение инфорации о пользователе: Регистрация | Активность | Спам-Базы |
+    val userRegistration = api.checkUserReg(userId = 12345)
+    val userActivity = api.checkUserActivity(userId = 12345)
+    val userSpamBases = api.checkUserSpam(userId = 12345)
+    val userStars = api.checkUserStars(userId = 12345)
+    val userPocket = api.checkUserPocket(userId = 12345)
+    println(
+        "Информация о пользователе:\n" +
+                "Дата регистрации: $userRegistration\n" +
+                "Актив (д|н|м|весь): ${userActivity!!.activity.day} | ${userActivity.activity.week} |" +
+                " ${userActivity.activity.month} | ${userActivity.activity.total}\n\n" +
+                "Наличие в спам базах ириса:\n" +
+                "Спам: ${userSpamBases!!.spam.isSpam}\n" +
+                "Игнор: ${userSpamBases.spam.isIgnore}" +
+                "Скам: ${userSpamBases.spam.isScam}\n\n" +
+                "Количество звезд: $userStars\n\n" +
+                "Мешок(ириски, голд, коины): ${userPocket!!.pocket.sweets} | ${userPocket.pocket.gold} | ${userPocket.pocket.coins}"
+    )
 }
 ```
 
