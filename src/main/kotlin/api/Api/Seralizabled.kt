@@ -16,7 +16,7 @@ data class HistoryData(
     @JsonNames("peer_id")
     val peerId: Long,
     @JsonNames("to_user_id")
-    val toUserId: Long,
+    val toUserId: Long?,
     val details: DetailsHistoryData? = null,
     val comment: String? = null,
     // val metadata = null,
@@ -37,7 +37,7 @@ data class DetailsHistoryData(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class BalanceData(
-    val gold: Double,
+    val gold: Int,
     val sweets: Double,
     @JsonNames("donate_score")
     val donateScore: Int,
