@@ -35,55 +35,38 @@ suspend fun main() {
     // Укажите свои botId и IrisToken
     val api = IrisApiClient(botId = 6897200170, irisToken = "cH2i6pwEqcpDWmSaEOrEaUWjfqda52Lj")
 
-    api.giveGold(1, 5858412531, "хуй")
-
-
     // Получение истории голд, ирисок и очков доната
     val historyGold = api.getGoldHistory()
-    println(historyGold)
-
     val historySweets = api.getSweetsHistory()
-    println(historySweets)
-
     val historyDonateScore = api.getDonateScoreHistory()
+    println(historyGold)
+    println(historySweets)
     println(historyDonateScore)
-
 
     // Получение баланса мешка бота
     val balance = api.getBalance()
     println(balance)
 
-
     // Перевод голд, ирисок и очков доната в другой мешок
     api.giveGold(count = 1, userId = 12345, comment = "Тестирование голд")
-
     api.giveSweets(count = 1, userId = 12345, comment = "Тестирование ирисок")
-
     api.giveDonateScore(count = 1, userId = 12345, comment = "Тестирование очков доната")
-
 
     // Включение/выключение возможности открывать мешок бота
     api.enableOrDisablePocket(enable = true)
-
     api.enableOrDisablePocket(enable = false)
-
 
     // Запретить/разрешить всем переводить валюту боту
     api.enableOrDisableAllPocket(enable = false)
-
     api.enableOrDisableAllPocket(enable = true)
-
 
     // Запретить/разрешить конкретному пользователю переводить валюту боту
     api.allowOrDenyUserPocket(userId = 123456789, enable = false)
-
     api.allowOrDenyUserPocket(userId = 123456789, enable = true)
-
 
     // Получение списка действующих агентов ириса.
     val irisAgents = api.getIrisAgents()
     println(irisAgents)
-
 
     // Получение списка обновлений
     val updates = api.getUpdates()
@@ -91,11 +74,9 @@ suspend fun main() {
         for (update in updates) println(update)
     }
 
-
     // Генерация deep-links на примере ирисок, так же поддерживаются голд и очки доната
     val goldDeepLink = api.generateDeepLink(currency = Currencies.SWEETS, count = 1, comment = "тест_ирисок")
     println(goldDeepLink)
-
 
     // Генеарция deel-link для выдачи боту прав доступа к пользовательским данным ириса
     val botPermissionsDeelLink = api.generateBotPermissionsDeepLink(
@@ -105,7 +86,6 @@ suspend fun main() {
         )
     )
     println(botPermissionsDeelLink)
-
 
     // Получение инфорации о пользователе: Регистрация | Активность | Спам-Базы |
     val userRegistration = api.checkUserReg(userId = 12345)
