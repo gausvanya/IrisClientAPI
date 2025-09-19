@@ -27,16 +27,16 @@ suspend fun main() {
 
 
     // Получение истории Голд и Ирисок
-    val getHistoryGold = api.goldHistory()
-    println(getHistoryGold)
+    val historyGold = api.getGoldHistory()
+    println(historyGold)
 
-    val getHistorySweets = api.sweetsHistory()
-    println(getHistorySweets)
+    val historySweets = api.getSweetsHistory()
+    println(historySweets)
 
 
     // Получение баланса мешка
-    val getBalance = api.balance()
-    println(getBalance)
+    val balance = api.getBalance()
+    println(balance)
 
 
     // Перевод Голд и Ирисок в другой мешок
@@ -61,6 +61,10 @@ suspend fun main() {
     api.allowOrDenyUserPocket(userId = 123456789, enable = false)
 
     api.allowOrDenyUserPocket(userId = 123456789, enable = true)
+
+    // Получение списка действующих агентов ириса.
+    val irisAgents = api.getIrisAgents()
+    println(irisAgents)
 }
 ```
 
