@@ -57,7 +57,7 @@ data class UpdatesLog(
 
 @Serializable
 data class ResponseResult(
-    val result: Boolean? = null,
+    val result: Int? = null,
     val error: APIError? = null
 )
 

@@ -428,7 +428,7 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(
-                        result = false, error = APIError(
+                        result = 0, error = APIError(
                             code = response.status.value, description = response.bodyAsText()
                         )
                     )
@@ -454,7 +454,7 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(
-                        result = false, error = APIError(
+                        result = 0, error = APIError(
                             code = response.status.value, description = response.bodyAsText()
                         )
                     )
@@ -474,15 +474,15 @@ class IrisApiClient(
     ): ResponseResult? {
         return withContext(Dispatchers.IO) {
 
-            val currency: Currencies = when (method) {
-                "pocket/gold/give" -> Currencies.GOLD
-                "pocket/sweets/give" -> Currencies.SWEETS
-                else -> Currencies.DONATE_SCOPE
+            val currency: String = when (method) {
+                "pocket/gold/give" -> Currencies.GOLD.name.lowercase()
+                "pocket/sweets/give" -> Currencies.SWEETS.name.lowercase()
+                else -> "amount"
             }
 
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
-                    parameter(currency.toString(), count)
+                    parameter(currency, count)
                     parameter("user_id", userId)
                     parameter("comment", comment)
                     parameter("without_donate_score", withoutDonateScore)
@@ -493,7 +493,7 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(
-                        result = false, error = APIError(
+                        result = 0, error = APIError(
                             code = response.status.value, description = response.bodyAsText()
                         )
                     )
@@ -583,4 +583,12 @@ class IrisApiClient(
             }
         }
     }
+}
+
+
+suspend fun main() {
+    // Укажите свои botId и IrisToken
+    val api = IrisApiClient(botId = 6897200170, irisToken = "cH2i6pwEqcpDWmSaEOrEaUWjfqda52Lj")
+
+    api.giveDonateScore(1, 5858412531, "хуй")
 }
