@@ -150,7 +150,7 @@ class IrisApiClient(
         val method = "pocket/gold/give"
 
         if (count <= 0) {
-            throw CurrencyCountZeroException("Число голд не может быть нулевым или отрицательным")
+            throw CurrencyCountZeroException("Число не может быть нулевым или отрицательным")
         }
 
         if (comment != null && comment.length > 128) {
@@ -158,6 +158,26 @@ class IrisApiClient(
         }
 
         return giveCurrencyResponse(count, userId, comment, withoutDonateScore, method)
+    }
+
+    suspend fun giveDonateScore(count: Int, userId: Long, comment: String? = null): ResponseResult? {
+        /**
+         * count - Число голд которое вы хотите передать.
+         * userId Уникальный индетификатор Telegram получателя голд.
+         * comment - Комментарий к переводу, максимальная длина текста 128 символов. Необязательно к передаче.
+         */
+
+        val method = "pocket/donate_score/give"
+
+        if (count <= 0) {
+            throw CurrencyCountZeroException("Число не может быть нулевым или отрицательным")
+        }
+
+        if (comment != null && comment.length > 128) {
+            throw LimitCommentLengthException("Максимальная длинна комментария не должна превышать 128 символов")
+        }
+
+        return giveCurrencyResponse(count, userId, comment, false, method)
     }
 
 
@@ -190,6 +210,15 @@ class IrisApiClient(
 
         val method = "pocket/gold/history"
 
+        return getHistoryResponse(offset, method)
+    }
+
+    suspend fun getDonateScoreHistory(offset: Int = 0): Any? {
+        /**
+         * Получение истории путешествий пончиков
+         */
+
+        val method = "pocket/donate_score/history"
         return getHistoryResponse(offset, method)
     }
 
@@ -229,13 +258,13 @@ class IrisApiClient(
     }
 
 
-    suspend fun getUpdates(offset: Int = 0): List<UpdatesLog>? {
+    suspend fun getUpdates(offset: Int = 0, limit: Int = 0): List<UpdatesLog>? {
         /**
          * Получение логов обновлений
          */
 
         val method = "getUpdates"
-        return getUpdatesResponse(offset, method)
+        return getUpdatesResponse(offset, limit, method)
     }
 
 
@@ -246,6 +275,34 @@ class IrisApiClient(
 
         val method = "iris_agents"
         return getIrisAgentsResponse(method)
+    }
+
+
+    fun generateDeepLink(currency: Currencies, count: Int, comment: String? = null): String {
+        if (count <= 0) {
+            throw CurrencyCountZeroException("Число не может быть нулевым или отрицательным")
+        }
+
+        if (comment != null) {
+            if (comment.length > 128) {
+                throw LimitCommentLengthException("Максимальная длинна комментария не должна превышать 128 символов")
+            }
+
+            val regex = "^[а-яa-zA-ZА-Я0-9_]+\$".toRegex()
+
+            if (!regex.matches(comment)) {
+                throw CommentNotPatternException("Комментарий может содержать только буквы, цифры и символ подчеркивания")
+            }
+        }
+
+         var url = when(currency) {
+            Currencies.GOLD -> "https://t.me/iris_cm_bot?start=givegold_bot${botId}_${count}"
+            Currencies.SWEETS -> "https://t.me/iris_cm_bot?start=give_bot${botId}_${count}"
+            Currencies.DONATE_SCOPE -> "https://t.me/iris_cm_bot?start=givedonate_score_bot${botId}_${count}"
+        }
+
+        if (comment != null) url = url + "_$comment"
+        return url
     }
 
 
@@ -307,11 +364,15 @@ class IrisApiClient(
     ): ResponseResult? {
         return withContext(Dispatchers.IO) {
 
-            val currency = if (method == "pocket/gold/give") "gold" else "sweets"
+            val currency: Currencies = when (method) {
+                "pocket/gold/give" -> Currencies.GOLD
+                "pocket/sweets/give" -> Currencies.SWEETS
+                else -> Currencies.DONATE_SCOPE
+            }
 
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
-                    parameter(currency, count)
+                    parameter(currency.toString(), count)
                     parameter("user_id", userId)
                     parameter("comment", comment)
                     parameter("without_donate_score", withoutDonateScore)
@@ -389,11 +450,12 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getUpdatesResponse(offset: Int, method: String): List<UpdatesLog>? {
+    private suspend fun getUpdatesResponse(offset: Int, limit: Int, method: String): List<UpdatesLog>? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
                     parameter("offset", offset)
+                    parameter("limit", limit)
                 }
 
                 if (response.status == HttpStatusCode.OK) {
