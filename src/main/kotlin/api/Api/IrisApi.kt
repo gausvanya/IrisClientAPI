@@ -385,7 +385,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun canselPartTrade(id: Int, volume: Int): CancelTradesResponse? {
+    suspend fun cancelPartTrade(id: Int, volume: Int): CancelTradesResponse? {
         /**
          * id — ид заявки на Ирис-бирже.
          * volume — объём золотых ирисок для отмены. Если указанный объём равен или превышает объём выбранной заявки, то заявка полностью снимается
@@ -712,4 +712,3 @@ class IrisApiClient(
         }
     }
 }
-
