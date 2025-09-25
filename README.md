@@ -75,10 +75,10 @@ suspend fun main() {
     }
 
     // Генерация deep-links на примере ирисок, так же поддерживаются голд и очки доната
-    val goldDeepLink = api.generateDeepLink(currency = Currencies.SWEETS, count = 1, comment = "тест_ирисок")
+    val sweetsDeepLink = api.generateDeepLink(currency = Currencies.SWEETS, count = 1, comment = "тест_ирисок")
     println(goldDeepLink)
 
-    // Генеарция deel-link для выдачи боту прав доступа к пользовательским данным ириса
+    // Генеарция deep-link для выдачи боту прав доступа к пользовательским данным ириса
     val botPermissionsDeelLink = api.generateBotPermissionsDeepLink(
         permissions = listOf(
             BotPermissions.REG,
