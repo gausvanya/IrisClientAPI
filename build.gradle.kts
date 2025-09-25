@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.iris-api-support"
-version = "1.2.3"
+version = "1.3"
 
 
 repositories {
