@@ -29,8 +29,9 @@
  - Ппополнить бота голд [без од] {число} @бот — переводит боту число золотых ирисок.  без од —  передать без очков доната (необязательный параметр)
  - Пополнить бота од {число} @бот — переводит боту число очков доната
   
-# Примеры использования:
+# Примеры использования библиотеки:
 ```kotlin
+
 suspend fun main() {
     // Укажите свои botId и IrisToken
     val api = IrisApiClient(botId = 6897200170, irisToken = "cH2i6pwEqcpDWmSaEOrEaUWjfqda52Lj")
@@ -76,7 +77,7 @@ suspend fun main() {
 
     // Генерация deep-links на примере ирисок, так же поддерживаются голд и очки доната
     val sweetsDeepLink = api.generateDeepLink(currency = Currencies.SWEETS, count = 1, comment = "тест_ирисок")
-    println(goldDeepLink)
+    println(sweetsDeepLink)
 
     // Генеарция deep-link для выдачи боту прав доступа к пользовательским данным ириса
     val botPermissionsDeelLink = api.generateBotPermissionsDeepLink(
@@ -105,50 +106,30 @@ suspend fun main() {
                 "Количество звезд: $userStars\n\n" +
                 "Мешок(ириски, голд, коины): ${userPocket!!.pocket.sweets} | ${userPocket.pocket.gold} | ${userPocket.pocket.coins}"
     )
-}
-```
+//
+    // Подача заявки на покупку ирис-голд на бирже.
+    val buyTrade = api.buyTrade(1.0, 10)
+    println(buyTrade)
 
-# Пример использования API биржи:  
-```kotlin
-suspend fun main() {
-    // Создаем объект класса API
-    val api = IrisTradesApi()
+    // Подача заявки на продажу ирис-голд на бирже.
+    val sellTrade = api.sellTrade(1.0, 10)
+    println(sellTrade)
 
+    // Получить список заявок поданных на Ирис-бирже.
+    val ordersTrade = api.getOrdersTrade()
+    println(ordersTrade)
 
-    // Метод получения сделок с голд на бирже, имеется параметр id
-    val deals = api.getDeals()
+    // Отменить все заявки по указанной цене.
+    val cancelPriceTrade = api.cancelPriceTrade(1.0)
+    println(cancelPriceTrade)
 
-    if (deals != null) {
-        for (deal in deals) {
-            val id = deal.id
-            val volume = deal.volume
-            val date = deal.date
-            val groupId = deal.groupId
-            val type = deal.type
-            println("id=$id, volume=$volume, date=$date, groupId=$groupId, type=$type")
-        }
-    }
+    // Отменить все заявки по указанной цене.
+    val cancelAllTrade = api.cancelAllTrade()
+    println(ordersTrade)
 
-    // Метод получения стакана заявок биржи
-    val orderBook = api.getOrderBook()
-
-    if (orderBook != null) {
-        val buys = orderBook.buy
-        val sells = orderBook.sell
-
-        for (buy in buys) {
-            val price = buy.price
-            val volume = buy.volume
-            println("buys: id=$price, volume=$volume")
-
-        }
-
-        for (sell in sells) {
-            val price = sell.price
-            val volume = sell.volume
-            println("sells: id=$price, volume=$volume")
-        }
-    }
+    // Отменить выбранную заявку частично.
+    val cancelPrice = api.cancelPartTrade(1, 10)
+    println(ordersTrade)
 }
 ```
   
