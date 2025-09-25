@@ -1,5 +1,6 @@
 package IrisClientAPI.Api
 
+import IrisClientAPI.Api.Seralizable.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
@@ -11,83 +12,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 private const val irisApiVersion = "0.3"
-
-
-class IrisTradesApi(
-    private val tradeOrderBookBaseURL: String = "https://iris-tg.ru/k/trade/order_book",
-    private val tradeDealsBaseURL: String = "https://iris-tg.ru/trade/deals"
-) {
-    private val json = Json { ignoreUnknownKeys = true }
-    private val logger = KotlinLogging.logger {}
-    private val httpClient = HttpClient(OkHttp) {
-        engine {
-            config {
-                followRedirects(true)
-            }
-        }
-    }
-
-
-    suspend fun getOrderBook(): TradesOrderBookTypesResponse? {
-        /**
-         * Метод получения стакана заявок биржи
-         */
-        return getOrderBookResponse()
-    }
-
-
-    suspend fun getDeals(id: Int = 0): List<TradesDealsResponse>? {
-        /**
-         * Метод получения сделок с голд на бирже
-         * id - индетификатор сделки от которого начнется ответ API, вернет 200 сделок
-         */
-        return getDealsResponse(id)
-    }
-
-
-    private suspend fun getOrderBookResponse(): TradesOrderBookTypesResponse? {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response: HttpResponse = httpClient.post(tradeOrderBookBaseURL)
-
-                if (response.status == HttpStatusCode.OK) {
-                    val jsonResult = response.bodyAsText()
-                    json.decodeFromString(
-                        TradesOrderBookTypesResponse.serializer(), jsonResult
-                    )
-                } else {
-                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
-                }
-
-            } catch (e: IrisResponseException) {
-                logger.error { "Ошибка при попытке получить стакана заявок биржи $e" }
-                null
-            }
-        }
-    }
-
-
-    private suspend fun getDealsResponse(id: Int): List<TradesDealsResponse>? {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response: HttpResponse = httpClient.post(tradeDealsBaseURL) {
-                    parameter("id", id)
-                }
-
-                if (response.status == HttpStatusCode.OK) {
-                    val jsonResult = response.bodyAsText()
-                    json.decodeFromString<List<TradesDealsResponse>>(jsonResult)
-                } else {
-                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
-                }
-
-            } catch (e: IrisResponseException) {
-                logger.error { "Ошибка при попытке получить стакана заявок биржи $e" }
-                null
-            }
-        }
-    }
-}
 
 
 class IrisApiClient(
@@ -160,6 +84,7 @@ class IrisApiClient(
         return giveCurrencyResponse(count, userId, comment, withoutDonateScore, method)
     }
 
+
     suspend fun giveDonateScore(count: Int, userId: Long, comment: String? = null): ResponseResult? {
         /**
          * count - Число голд которое вы хотите передать.
@@ -212,6 +137,7 @@ class IrisApiClient(
 
         return getHistoryResponse(offset, method)
     }
+
 
     suspend fun getDonateScoreHistory(offset: Int = 0): List<HistoryData>? {
         /**
@@ -387,6 +313,210 @@ class IrisApiClient(
     }
 
 
+    suspend fun buyTrade(price: Double, volume: Int): BuyTradesResponse? {
+        /**
+         * price — цена покупки. от 0.01 до 1_000_000. При желании купить ирис-голд "по рынку", указывайте максимальную цену.
+         * volume — желаемое количество золотых ирисок для покупки.
+         * Заявка на покупку ирис-голд.
+         */
+
+        val method = "trade/buy"
+
+        if (price < 0.01 || price > 1000000.0) {
+            throw TradesPriceException("Сумма должна быть в диапозоне от 0.01 до 1000000.0 ирисок.")
+        }
+
+        return buyTradeResponse(price, volume, method)
+    }
+
+
+    suspend fun sellTrade(price: Double, volume: Int): SellTradesResponse? {
+        /**
+         * price — цена продажи. от 0.01 до 1_000_000. При желании продать ирис-голд "по рынку", указывайте максимальную цену.
+         * volume — желаемое количество золотых ирисок для продажи.
+         * Заявка на продажу ирис-голд.
+         */
+
+        val method = "trade/sell"
+
+        if (price < 0.01 || price > 1000000.0) {
+            throw TradesPriceException("Сумма должна быть в диапозоне от 0.01 до 1000000.0 ирисок.")
+        }
+
+        return sellTradeResponse(price, volume, method)
+    }
+
+
+    suspend fun getOrdersTrade(): OrdersResponse? {
+        /**
+         * Список заявок бота на Ирис-бирже.
+         */
+
+        val method = "trade/my_orders"
+
+        return getOrdersResponse(method)
+    }
+
+
+    suspend fun cancelPriceTrade(price: Double): CancelTradesResponse? {
+        /**
+         * price — цена покупки. от 0.01 до 1_000_000.
+         * Отменить все заявки по указанной цене.
+         */
+
+        val method = "trade/cancel_price"
+
+        if (price < 0.01 || price > 1000000.0) {
+            throw TradesPriceException("Сумма должна быть в диапозоне от 0.01 до 1000000.0 ирисок.")
+        }
+
+        return cancelPriceTradeResponse(price, method)
+    }
+
+
+    suspend fun cancelAllTrade(): CancelTradesResponse? {
+        /**
+         * Отменить вообще все заявки бота.
+         */
+
+        val method = "trade/cancel_all"
+
+        return cancelAllTradeResponse(method)
+    }
+
+
+    suspend fun canselPartTrade(id: Int, volume: Int): CancelTradesResponse? {
+        /**
+         * id — ид заявки на Ирис-бирже.
+         * volume — объём золотых ирисок для отмены. Если указанный объём равен или превышает объём выбранной заявки, то заявка полностью снимается
+         * Отменить выбранную заявку частично.
+         */
+
+        val method = "trade/cancel_part"
+
+        return cancelPartTradeResponse(id, volume, method)
+    }
+
+
+    private suspend fun cancelPartTradeResponse(id: Int, volume: Int, method: String): CancelTradesResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.get("$baseURL/$method") {
+                    parameter("id", id)
+                    parameter("volume", volume)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<CancelTradesResponse>(jsonResult)
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке отмены заявки бирже: $e" }
+                null
+            }
+        }
+    }
+
+
+    private suspend fun cancelAllTradeResponse(method: String): CancelTradesResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.get("$baseURL/$method")
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<CancelTradesResponse>(jsonResult)
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке отмены заявки бирже: $e" }
+                null
+            }
+        }
+    }
+
+
+    private suspend fun cancelPriceTradeResponse(price: Double, method: String): CancelTradesResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.get("$baseURL/$method") {
+                    parameter("price", price)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<CancelTradesResponse>(jsonResult)
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке отмены заявки бирже: $e" }
+                null
+            }
+        }
+    }
+
+
+    private suspend fun getOrdersResponse(method: String): OrdersResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.get("$baseURL/$method")
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<OrdersResponse>(jsonResult)
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке создание заявки на покупку ирис-голд: $e" }
+                null
+            }
+        }
+    }
+
+
+    private suspend fun buyTradeResponse(price: Double, volume: Int, method: String): BuyTradesResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.get("$baseURL/$method") {
+                    parameter("price", price)
+                    parameter("volume", volume)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<BuyTradesResponse>(jsonResult)
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке создание заявки на покупку ирис-голд: $e" }
+                null
+            }
+        }
+    }
+
+
+    private suspend fun sellTradeResponse(price: Double, volume: Int, method: String): SellTradesResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.get("$baseURL/$method") {
+                    parameter("price", price)
+                    parameter("volume", volume)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<SellTradesResponse>(jsonResult)
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке создание заявки на покупку ирис-голд: $e" }
+                null
+            }
+        }
+    }
+
+
     private suspend fun <T> getUserInfoResponse(userId: Long, method: String): T? {
         return withContext(Dispatchers.IO) {
             try {
@@ -445,7 +575,6 @@ class IrisApiClient(
 
     private suspend fun enableDisablePocketResponse(method: String): ResponseResult? {
         return withContext(Dispatchers.IO) {
-
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method")
 
@@ -473,7 +602,6 @@ class IrisApiClient(
         count: Int, userId: Long, comment: String?, withoutDonateScore: Boolean, method: String
     ): ResponseResult? {
         return withContext(Dispatchers.IO) {
-
             val currency: String = when (method) {
                 "pocket/gold/give" -> Currencies.GOLD.name.lowercase()
                 "pocket/sweets/give" -> Currencies.SWEETS.name.lowercase()
