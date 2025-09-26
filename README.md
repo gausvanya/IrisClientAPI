@@ -128,7 +128,7 @@ suspend fun main() {
     println(ordersTrade)
 
     // Отменить выбранную заявку частично.
-    val cancelPrice = api.cancelPartTrade(1, 10)
+    val cancelPartPrice = api.cancelPartTrade(1, 10)
     println(ordersTrade)
 }
 ```
