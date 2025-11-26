@@ -38,12 +38,13 @@ class IrisApiClient(
 
 
     suspend fun giveSweets(
-        count: Int, userId: Long, comment: String? = null, withoutDonateScore: Boolean = true
+        count: Int, userId: Long, comment: String? = null, donateScore: Int? = null, withoutDonateScore: Boolean = true
     ): ResponseResult? {
         /**
          * count - Число ирисок которое вы хотите передать.
          * userId Уникальный индетификатор Telegram получателя ирисок.
          * comment - Комментарий к переводу, максимальная длина текста 128 символов. Необязательно к передаче.
+         * donateScore - Количество очков доната, которые будут использоваться в передаче.
          * withoutDonateScore - Применять ли очки доната при передаче ирисок. Значение по умолчанию - true
          */
 
@@ -57,17 +58,18 @@ class IrisApiClient(
             throw LimitCommentLengthException("Максимальная длинна комментария не должна превышать 128 символов")
         }
 
-        return giveCurrencyResponse(count, userId, comment, withoutDonateScore, method)
+        return giveCurrencyResponse(count, userId, comment, withoutDonateScore, method, donateScore)
     }
 
 
     suspend fun giveGold(
-        count: Int, userId: Long, comment: String? = null, withoutDonateScore: Boolean = true
+        count: Int, userId: Long, comment: String? = null, donateScore: Int? = null, withoutDonateScore: Boolean = true
     ): ResponseResult? {
         /**
          * count - Число голд которое вы хотите передать.
          * userId Уникальный индетификатор Telegram получателя голд.
          * comment - Комментарий к переводу, максимальная длина текста 128 символов. Необязательно к передаче.
+         * donateScore - Количество очков доната, которые будут использоваться в передаче.
          * withoutDonateScore - Применять ли очки доната при передаче голд. Значение по умолчанию - true
          */
 
@@ -81,7 +83,7 @@ class IrisApiClient(
             throw LimitCommentLengthException("Максимальная длинна комментария не должна превышать 128 символов")
         }
 
-        return giveCurrencyResponse(count, userId, comment, withoutDonateScore, method)
+        return giveCurrencyResponse(count, userId, comment, withoutDonateScore, method, donateScore)
     }
 
 
@@ -599,7 +601,7 @@ class IrisApiClient(
 
 
     private suspend fun giveCurrencyResponse(
-        count: Int, userId: Long, comment: String?, withoutDonateScore: Boolean, method: String
+        count: Int, userId: Long, comment: String?, withoutDonateScore: Boolean, method: String, donateScore: Int? = null
     ): ResponseResult? {
         return withContext(Dispatchers.IO) {
             val currency: String = when (method) {
@@ -612,6 +614,7 @@ class IrisApiClient(
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
                     parameter(currency, count)
                     parameter("user_id", userId)
+                    parameter("donate_score", donateScore)
                     parameter("comment", comment)
                     parameter("without_donate_score", withoutDonateScore)
                 }
