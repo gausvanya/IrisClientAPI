@@ -87,6 +87,27 @@ class IrisApiClient(
     }
 
 
+    suspend fun giveTgStars(userId: Long, count: Int, comment: String? = null): ResponseResult? {
+        /**
+         * count - Число тг-звезд которое вы хотите передать.
+         * userId Уникальный индетификатор Telegram получателя тг-звезд.
+         * comment - Комментарий к переводу, максимальная длина текста 128 символов. Необязательно к передаче.
+         */
+
+        val method = "pocket/tgstars/give"
+
+        if (count <= 0) {
+            throw CurrencyCountZeroException("Число не может быть нулевым или отрицательным")
+        }
+
+        if (comment != null && comment.length > 128) {
+            throw LimitCommentLengthException("Максимальная длинна комментария не должна превышать 128 символов")
+        }
+
+        return giveCurrencyResponse(count, userId, comment, method = method)
+    }
+
+
     suspend fun giveDonateScore(count: Int, userId: Long, comment: String? = null): ResponseResult? {
         /**
          * count - Число голд которое вы хотите передать.
@@ -119,35 +140,45 @@ class IrisApiClient(
     }
 
 
-    suspend fun getSweetsHistory(offset: Int = 0): List<HistoryData>? {
+    suspend fun getSweetsHistory(offset: Int = 0, limit: Int = 200): List<HistoryData>? {
         /**
          * Получение истории путешествий ирисок
          */
 
         val method = "pocket/sweets/history"
 
-        return getHistoryResponse(offset, method)
+        return getHistoryResponse(offset, limit, method)
     }
 
 
-    suspend fun getGoldHistory(offset: Int = 0): List<HistoryData>? {
+    suspend fun getGoldHistory(offset: Int = 0, limit: Int = 200): List<HistoryData>? {
         /**
          * Получение истории путешествий голд
          */
 
         val method = "pocket/gold/history"
 
-        return getHistoryResponse(offset, method)
+        return getHistoryResponse(offset, limit, method)
     }
 
 
-    suspend fun getDonateScoreHistory(offset: Int = 0): List<HistoryData>? {
+    suspend fun getDonateScoreHistory(offset: Int = 0, limit: Int = 200): List<HistoryData>? {
         /**
          * Получение истории путешествий пончиков
          */
 
         val method = "pocket/donate_score/history"
-        return getHistoryResponse(offset, method)
+        return getHistoryResponse(offset, limit, method)
+    }
+
+
+    suspend fun getTgStarsHistory(offset: Int = 0, limit: Int = 200): List<HistoryData>? {
+        /**
+         * Получение истории путешествий тг-звезд
+         */
+
+        val method = "pocket/tgstars/history"
+        return getHistoryResponse(offset, limit, method)
     }
 
 
@@ -208,10 +239,10 @@ class IrisApiClient(
 
     fun generateDeepLink(currency: Currencies, count: Int, comment: String? = null): String {
         /**
+         * Генерация deep-link для взаимодейстия с валютами бота
          * currency - валюта, на основе которой будет создана ссылка
          * count - количество валюты
          * comment - комментарий к переводу
-         * Генерация deep-link для взаимодейстия с валютами бота
          */
 
         if (count <= 0) {
@@ -231,12 +262,13 @@ class IrisApiClient(
         }
 
         var url = when (currency) {
-            Currencies.GOLD -> "https://t.me/iris_black_bot?start=givegold_bot${botId}_${count}"
-            Currencies.SWEETS -> "https://t.me/iris_black_bot?start=give_bot${botId}_${count}"
-            Currencies.DONATE_SCOPE -> "https://t.me/iris_black_bot?start=givedonate_score_bot${botId}_${count}"
+            Currencies.GOLD -> "https://t.me/iris_black_bot?start=givegold_bot${botId}_$count"
+            Currencies.SWEETS -> "https://t.me/iris_black_bot?start=give_bot${botId}_$count"
+            Currencies.DONATE_SCOPE -> "https://t.me/iris_black_bot?start=givedonate_score_bot${botId}_$count"
+            Currencies.TGSTARS -> "https://t.me/iris_cm_bot?start=givetgstars_bot${botId}_$count"
         }
 
-        if (comment != null) url = url + "_$comment"
+        if (comment != null) url += "_$comment"
         return url
     }
 
@@ -400,6 +432,53 @@ class IrisApiClient(
     }
 
 
+    suspend fun getOrderBookTrade() : OrdersResponse? {
+        /**
+         * текущий стакан заявок Ирис-биржи.
+         */
+
+        val method = "trade/orderbook"
+
+        return getOrdersResponse(method)
+    }
+
+
+    suspend fun getDealsTrade(id: Int = 0, limit: Int = 200) : DealsResponse? {
+        /**
+         *  история сделок на бирже ириса.
+         * - id — id сделки, начиная с которой будет выдано limit записей.  По умолчанию 0 — выдаст последние limit сделок, совершённых на бирже
+         * - limit — максимальное количество выдаваемых записей. Значения от 0 до 200. По умолчанию — 200
+         */
+
+        val method = "trade/deals"
+        return getDealsTradeResponse(id, limit, method)
+    }
+
+
+    suspend fun buyTgStars(count: Int) : ResponseResult? {
+        /**
+         * Покупка Telegram звезд за ириски.
+         * count - колличество тг-звезд для покупки.
+         */
+
+        val method = "pocket/tgstars/buy"
+
+        return buyTgStarsResponse(count, method)
+    }
+
+
+    suspend fun getPriceTgStars(count: Int) : PriceTgStars? {
+        /**
+         * Оценка стоимости покупки тг-звёзд.
+         * count - колличество тг-звезд для покупки.
+         */
+
+        val method = "pocket/tgstars/price"
+
+        return getPriceTgStarsResponse(count, method)
+    }
+
+
     private suspend fun cancelPartTradeResponse(id: Int, volume: Int, method: String): CancelTradesResponse? {
         return withContext(Dispatchers.IO) {
             try {
@@ -519,12 +598,43 @@ class IrisApiClient(
     }
 
 
+    private suspend fun getDealsTradeResponse(id: Int, limit: Int, method: String) : DealsResponse? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.post("$baseURL/$method") {
+                    parameter("id", id)
+                    parameter("limit", limit)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<DealsResponse>(jsonResult)
+                } else {
+                    ResponseResult(
+                        result = 0, error = APIError(
+                            code = response.status.value, description = response.bodyAsText()
+                        )
+                    )
+                    throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+                }
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при попытке переключить доступ к переводам $e" }
+                null
+            }
+        }
+    }
+
+
     private suspend fun <T> getUserInfoResponse(userId: Long, method: String): T? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
                     parameter("user_id", userId)
                 }
+                println(response)
+                println(response.bodyAsText())
+                println(response.headers)
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
@@ -601,12 +711,18 @@ class IrisApiClient(
 
 
     private suspend fun giveCurrencyResponse(
-        count: Int, userId: Long, comment: String?, withoutDonateScore: Boolean, method: String, donateScore: Int? = null
+        count: Int,
+        userId: Long,
+        comment: String? = null,
+        withoutDonateScore: Boolean? = null,
+        method: String,
+        donateScore: Int? = null
     ): ResponseResult? {
         return withContext(Dispatchers.IO) {
             val currency: String = when (method) {
                 "pocket/gold/give" -> Currencies.GOLD.name.lowercase()
                 "pocket/sweets/give" -> Currencies.SWEETS.name.lowercase()
+                "pocket/tgstars/give" -> Currencies.TGSTARS.name.lowercase()
                 else -> "amount"
             }
 
@@ -657,11 +773,12 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getHistoryResponse(offset: Int, method: String): List<HistoryData>? {
+    private suspend fun getHistoryResponse(offset: Int, limit: Int, method: String): List<HistoryData>? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
                     parameter("offset", offset)
+                    parameter("limit", limit)
                 }
 
                 if (response.status == HttpStatusCode.OK) {
@@ -710,6 +827,47 @@ class IrisApiClient(
 
             } catch (e: IrisResponseException) {
                 logger.error { "Ошибка при получение истории обмена валют $e" }
+                null
+            }
+        }
+    }
+
+
+    private suspend fun buyTgStarsResponse(count: Int, method: String): ResponseResult? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.get("$baseURL/$method") {
+                    parameter("tgstars", count)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    json.decodeFromString<ResponseResult>(jsonResult)
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при покупке тг-звезд: $e" }
+                null
+            }
+        }
+    }
+
+
+    private suspend fun getPriceTgStarsResponse(count: Int, method: String): PriceTgStars? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = httpClient.get("$baseURL/$method") {
+                    parameter("tgstars", count)
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val jsonResult = response.bodyAsText()
+                    println(jsonResult)
+                    json.decodeFromString<PriceTgStars>(jsonResult)
+                } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
+
+            } catch (e: IrisResponseException) {
+                logger.error { "Ошибка при покупке тг-звезд: $e" }
                 null
             }
         }

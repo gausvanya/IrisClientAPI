@@ -4,7 +4,8 @@ package IrisClientAPI.Api
 enum class Currencies(private val currency: String) {
     GOLD("gold"),
     SWEETS("sweets"),
-    DONATE_SCOPE("donate_score");
+    DONATE_SCOPE("donate_score"),
+    TGSTARS("tgstars");
 }
 
 
