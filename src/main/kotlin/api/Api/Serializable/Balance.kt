@@ -7,7 +7,15 @@ import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class BalanceData(
+data class BalanceSerialization(
+    @JsonNames("result")
+    val balance: BalanceDataResult
+)
+
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class BalanceDataResult(
     val gold: Int,
     val sweets: Double,
     @JsonNames("donate_score")

@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class UserRegInfoResponse(
+data class UserRegInfoSerialization(
     @JsonNames("result")
     val reg: Long
 )
@@ -15,24 +15,23 @@ data class UserRegInfoResponse(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class UserActivityInfoResponse(
+data class UserActivityInfoSerialization(
     @JsonNames("result")
     val activity: UserActivityResponse
 )
 
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class UserActivityResponse(
-    val total: Int,
-    val week: Int,
-    val month: Int,
-    val day: Int
+data class UserPocketInfoSerialization(
+    @JsonNames("result")
+    val pocket: UserPocketResponse
 )
 
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class UserSpamInfoResponse(
+data class UserSpamInfoSerialization(
     @JsonNames("result")
     val spam: UserSpamChecksResponse
 )
@@ -40,7 +39,7 @@ data class UserSpamInfoResponse(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class UserStarsInfoResponse(
+data class UserStarsInfoSerialization(
     @JsonNames("result")
     val checks: Int
 )
@@ -58,18 +57,19 @@ data class UserSpamChecksResponse(
 )
 
 
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-data class UserPocketInfoResponse(
-    @JsonNames("result")
-    val pocket: UserPocketResponse
-)
-
-
 @Serializable
 data class UserPocketResponse(
     val gold: Int,
     val coins: Int,
     val sweets: Double,
     val stars: Double
+)
+
+
+@Serializable
+data class UserActivityResponse(
+    val total: Int,
+    val week: Int,
+    val month: Int,
+    val day: Int
 )

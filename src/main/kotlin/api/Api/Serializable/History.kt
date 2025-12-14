@@ -1,5 +1,6 @@
 package IrisClientAPI.Api.Seralizable
 
+import IrisClientAPI.Api.HistoryTypes
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
@@ -7,9 +8,17 @@ import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class HistoryData(
+data class HistorySerialization(
+    @JsonNames("result")
+    val history: List<HistoryDataResult>
+)
+
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class HistoryDataResult(
     val id: Int,
-    val type: String,
+    val type: HistoryTypes,
     val date: Long,
     val amount: Double,
     val balance: Double,
@@ -18,8 +27,7 @@ data class HistoryData(
     @JsonNames("to_user_id")
     val toUserId: Long? = null,
     val details: DetailsHistoryData? = null,
-    val comment: String? = null,
-    // val metadata = null - Планируется в будущем.
+    val comment: String? = null
 )
 
 

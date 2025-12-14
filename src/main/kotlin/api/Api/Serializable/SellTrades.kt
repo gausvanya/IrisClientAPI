@@ -7,18 +7,26 @@ import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class BuyTradesResponse(
+data class SellTradeSerialization(
+    @JsonNames("result")
+    val sellTrade: SellTradeResult
+)
+
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class SellTradeResult(
     @JsonNames("done_volume")
     val doneVolume: Int,
-    @JsonNames("sweets_spent")
-    val sweetsSpent: Double,
+    @JsonNames("sweets_received")
+    val sweetsReceived: Double,
     @JsonNames("new_order")
-    val newOrder: OrderBuyTradesResponse? = null
+    val newOrder: OrderSellTrade? = null
 )
 
 
 @Serializable
-data class OrderBuyTradesResponse(
+data class OrderSellTrade(
     val id: Int? = null,
     val volume: Int? = null,
     val price: Double? = null

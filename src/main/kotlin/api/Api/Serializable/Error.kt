@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class ResponseResult(
-    val result: Int? = null,
-    val error: APIError? = null
+data class ApiError(
+    val code: Int,
+    val description: String
 )

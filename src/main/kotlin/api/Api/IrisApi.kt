@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-private const val irisApiVersion = "0.3"
+private const val irisApiVersion = "0.4"
 
 
 class IrisApiClient(
@@ -129,7 +129,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getBalance(): BalanceData? {
+    suspend fun getBalance(): BalanceSerialization? {
         /**
          * Получение баланса вашего бота.
          */
@@ -140,7 +140,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getSweetsHistory(offset: Int = 0, limit: Int = 200): List<HistoryData>? {
+    suspend fun getSweetsHistory(offset: Int = 0, limit: Int = 200): HistorySerialization? {
         /**
          * Получение истории путешествий ирисок
          */
@@ -151,7 +151,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getGoldHistory(offset: Int = 0, limit: Int = 200): List<HistoryData>? {
+    suspend fun getGoldHistory(offset: Int = 0, limit: Int = 200): HistorySerialization? {
         /**
          * Получение истории путешествий голд
          */
@@ -162,7 +162,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getDonateScoreHistory(offset: Int = 0, limit: Int = 200): List<HistoryData>? {
+    suspend fun getDonateScoreHistory(offset: Int = 0, limit: Int = 200): HistorySerialization? {
         /**
          * Получение истории путешествий пончиков
          */
@@ -172,7 +172,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getTgStarsHistory(offset: Int = 0, limit: Int = 200): List<HistoryData>? {
+    suspend fun getTgStarsHistory(offset: Int = 0, limit: Int = 200): HistorySerialization? {
         /**
          * Получение истории путешествий тг-звезд
          */
@@ -217,7 +217,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getUpdates(offset: Int = 0, limit: Int = 0): List<UpdatesLog>? {
+    suspend fun getUpdates(offset: Int = 0, limit: Int = 0): UpdatesSerialization? {
         /**
          * Получение логов обновлений
          */
@@ -287,7 +287,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun checkUserReg(userId: Long): UserRegInfoResponse? {
+    suspend fun checkUserReg(userId: Long): UserRegInfoSerialization? {
         /**
          * userId Уникальный индетификатор Telegram получателя голд.
          * Получение даты первого появления во вселенной ириса
@@ -299,7 +299,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun checkUserSpam(userId: Long): UserSpamInfoResponse? {
+    suspend fun checkUserSpam(userId: Long): UserSpamInfoSerialization? {
         /**
          * userId Уникальный индетификатор Telegram получателя голд.
          * Получение информации о нахождение пользователя в спам/гнор/скам базах ириса
@@ -311,7 +311,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun checkUserActivity(userId: Long): UserActivityInfoResponse? {
+    suspend fun checkUserActivity(userId: Long): UserActivityInfoSerialization? {
         /**
          * userId Уникальный индетификатор Telegram получателя голд.
          * Получение статистики активности пользователя в чатах ириса
@@ -323,7 +323,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun checkUserStars(userId: Long): UserStarsInfoResponse? {
+    suspend fun checkUserStars(userId: Long): UserStarsInfoSerialization? {
         /**
          * userId Уникальный индетификатор Telegram получателя голд.
          * Получение информации о звездочности пользователя в ирисе
@@ -335,7 +335,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun checkUserPocket(userId: Long): UserPocketInfoResponse? {
+    suspend fun checkUserPocket(userId: Long): UserPocketInfoSerialization? {
         /**
          * userId Уникальный индетификатор Telegram получателя голд.
          * Получение информации о мешке пользователя в ирисе
@@ -347,7 +347,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun buyTrade(price: Double, volume: Int): BuyTradesResponse? {
+    suspend fun buyTrade(price: Double, volume: Int): BuyTradeSerialization? {
         /**
          * price — цена покупки. от 0.01 до 1_000_000. При желании купить ирис-голд "по рынку", указывайте максимальную цену.
          * volume — желаемое количество золотых ирисок для покупки.
@@ -364,7 +364,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun sellTrade(price: Double, volume: Int): SellTradesResponse? {
+    suspend fun sellTrade(price: Double, volume: Int): SellTradeSerialization? {
         /**
          * price — цена продажи. от 0.01 до 1_000_000. При желании продать ирис-голд "по рынку", указывайте максимальную цену.
          * volume — желаемое количество золотых ирисок для продажи.
@@ -381,7 +381,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getOrdersTrade(): OrdersResponse? {
+    suspend fun getOrdersTrade(): OrdersSerialization? {
         /**
          * Список заявок бота на Ирис-бирже.
          */
@@ -392,7 +392,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun cancelPriceTrade(price: Double): CancelTradesResponse? {
+    suspend fun cancelPriceTrade(price: Double): CancelTradesResult? {
         /**
          * price — цена покупки. от 0.01 до 1_000_000.
          * Отменить все заявки по указанной цене.
@@ -408,7 +408,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun cancelAllTrade(): CancelTradesResponse? {
+    suspend fun cancelAllTrade(): CanselTradeSerialization? {
         /**
          * Отменить вообще все заявки бота.
          */
@@ -419,7 +419,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun cancelPartTrade(id: Int, volume: Int): CancelTradesResponse? {
+    suspend fun cancelPartTrade(id: Int, volume: Int): CanselTradeSerialization? {
         /**
          * id — ид заявки на Ирис-бирже.
          * volume — объём золотых ирисок для отмены. Если указанный объём равен или превышает объём выбранной заявки, то заявка полностью снимается
@@ -432,7 +432,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getOrderBookTrade() : OrdersResponse? {
+    suspend fun getOrderBookTrade(): OrdersSerialization? {
         /**
          * текущий стакан заявок Ирис-биржи.
          */
@@ -443,7 +443,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getDealsTrade(id: Int = 0, limit: Int = 200) : DealsResponse? {
+    suspend fun getDealsTrade(id: Int = 0, limit: Int = 200): DealsSerialization? {
         /**
          *  история сделок на бирже ириса.
          * - id — id сделки, начиная с которой будет выдано limit записей.  По умолчанию 0 — выдаст последние limit сделок, совершённых на бирже
@@ -455,7 +455,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun buyTgStars(count: Int) : ResponseResult? {
+    suspend fun buyTgStars(count: Int): ResponseResult? {
         /**
          * Покупка Telegram звезд за ириски.
          * count - колличество тг-звезд для покупки.
@@ -467,7 +467,7 @@ class IrisApiClient(
     }
 
 
-    suspend fun getPriceTgStars(count: Int) : PriceTgStars? {
+    suspend fun getPriceTgStars(count: Int): PriceTgStarsSerialization? {
         /**
          * Оценка стоимости покупки тг-звёзд.
          * count - колличество тг-звезд для покупки.
@@ -479,7 +479,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun cancelPartTradeResponse(id: Int, volume: Int, method: String): CancelTradesResponse? {
+    private suspend fun cancelPartTradeResponse(id: Int, volume: Int, method: String): CanselTradeSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
@@ -489,7 +489,7 @@ class IrisApiClient(
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<CancelTradesResponse>(jsonResult)
+                    json.decodeFromString<CanselTradeSerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
@@ -500,14 +500,14 @@ class IrisApiClient(
     }
 
 
-    private suspend fun cancelAllTradeResponse(method: String): CancelTradesResponse? {
+    private suspend fun cancelAllTradeResponse(method: String): CanselTradeSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method")
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<CancelTradesResponse>(jsonResult)
+                    json.decodeFromString<CanselTradeSerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
@@ -518,7 +518,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun cancelPriceTradeResponse(price: Double, method: String): CancelTradesResponse? {
+    private suspend fun cancelPriceTradeResponse(price: Double, method: String): CancelTradesResult? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
@@ -527,7 +527,7 @@ class IrisApiClient(
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<CancelTradesResponse>(jsonResult)
+                    json.decodeFromString<CancelTradesResult>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
@@ -538,14 +538,14 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getOrdersResponse(method: String): OrdersResponse? {
+    private suspend fun getOrdersResponse(method: String): OrdersSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method")
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<OrdersResponse>(jsonResult)
+                    json.decodeFromString<OrdersSerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
@@ -556,7 +556,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun buyTradeResponse(price: Double, volume: Int, method: String): BuyTradesResponse? {
+    private suspend fun buyTradeResponse(price: Double, volume: Int, method: String): BuyTradeSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
@@ -566,7 +566,7 @@ class IrisApiClient(
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<BuyTradesResponse>(jsonResult)
+                    json.decodeFromString<BuyTradeSerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
@@ -577,7 +577,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun sellTradeResponse(price: Double, volume: Int, method: String): SellTradesResponse? {
+    private suspend fun sellTradeResponse(price: Double, volume: Int, method: String): SellTradeSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
@@ -587,7 +587,7 @@ class IrisApiClient(
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<SellTradesResponse>(jsonResult)
+                    json.decodeFromString<SellTradeSerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
@@ -598,7 +598,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getDealsTradeResponse(id: Int, limit: Int, method: String) : DealsResponse? {
+    private suspend fun getDealsTradeResponse(id: Int, limit: Int, method: String): DealsSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
@@ -608,10 +608,10 @@ class IrisApiClient(
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<DealsResponse>(jsonResult)
+                    json.decodeFromString<DealsSerialization>(jsonResult)
                 } else {
                     ResponseResult(
-                        result = 0, error = APIError(
+                        result = 0, error = ApiError(
                             code = response.status.value, description = response.bodyAsText()
                         )
                     )
@@ -632,19 +632,22 @@ class IrisApiClient(
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
                     parameter("user_id", userId)
                 }
-                println(response)
-                println(response.bodyAsText())
-                println(response.headers)
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
 
                     val result = when (method) {
-                        BotPermissions.REG.getValue() -> json.decodeFromString<UserRegInfoResponse>(jsonResult) as T
-                        BotPermissions.ACTIVITY.getValue() -> json.decodeFromString<UserActivityInfoResponse>(jsonResult) as T
-                        BotPermissions.SPAM.getValue() -> json.decodeFromString<UserSpamInfoResponse>(jsonResult) as T
-                        BotPermissions.STARS.getValue() -> json.decodeFromString<UserStarsInfoResponse>(jsonResult) as T
-                        BotPermissions.POCKET.getValue() -> json.decodeFromString<UserPocketInfoResponse>(jsonResult) as T
+                        BotPermissions.REG.getValue() -> json.decodeFromString<UserRegInfoSerialization>(jsonResult) as T
+                        BotPermissions.ACTIVITY.getValue() -> json.decodeFromString<UserActivityInfoSerialization>(
+                            jsonResult
+                        ) as T
+
+                        BotPermissions.SPAM.getValue() -> json.decodeFromString<UserSpamInfoSerialization>(jsonResult) as T
+                        BotPermissions.STARS.getValue() -> json.decodeFromString<UserStarsInfoSerialization>(jsonResult) as T
+                        BotPermissions.POCKET.getValue() -> json.decodeFromString<UserPocketInfoSerialization>(
+                            jsonResult
+                        ) as T
+
                         else -> throw IllegalArgumentException("Аргумент не найден: $method")
                     }
                     result
@@ -670,7 +673,7 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(
-                        result = 0, error = APIError(
+                        result = 0, error = ApiError(
                             code = response.status.value, description = response.bodyAsText()
                         )
                     )
@@ -695,7 +698,7 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(
-                        result = 0, error = APIError(
+                        result = 0, error = ApiError(
                             code = response.status.value, description = response.bodyAsText()
                         )
                     )
@@ -719,16 +722,9 @@ class IrisApiClient(
         donateScore: Int? = null
     ): ResponseResult? {
         return withContext(Dispatchers.IO) {
-            val currency: String = when (method) {
-                "pocket/gold/give" -> Currencies.GOLD.name.lowercase()
-                "pocket/sweets/give" -> Currencies.SWEETS.name.lowercase()
-                "pocket/tgstars/give" -> Currencies.TGSTARS.name.lowercase()
-                else -> "amount"
-            }
-
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
-                    parameter(currency, count)
+                    parameter("amount", count)
                     parameter("user_id", userId)
                     parameter("donate_score", donateScore)
                     parameter("comment", comment)
@@ -740,7 +736,7 @@ class IrisApiClient(
                     json.decodeFromString<ResponseResult>(jsonResult)
                 } else {
                     ResponseResult(
-                        result = 0, error = APIError(
+                        result = 0, error = ApiError(
                             code = response.status.value, description = response.bodyAsText()
                         )
                     )
@@ -755,14 +751,14 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getBalanceResponse(method: String): BalanceData? {
+    private suspend fun getBalanceResponse(method: String): BalanceSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method")
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<BalanceData>(jsonResult)
+                    json.decodeFromString<BalanceSerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
@@ -773,7 +769,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getHistoryResponse(offset: Int, limit: Int, method: String): List<HistoryData>? {
+    private suspend fun getHistoryResponse(offset: Int, limit: Int, method: String): HistorySerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
@@ -783,7 +779,7 @@ class IrisApiClient(
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<List<HistoryData>>(jsonResult)
+                    json.decodeFromString<HistorySerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
@@ -794,7 +790,7 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getUpdatesResponse(offset: Int, limit: Int, method: String): List<UpdatesLog>? {
+    private suspend fun getUpdatesResponse(offset: Int, limit: Int, method: String): UpdatesSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.post("$baseURL/$method") {
@@ -804,7 +800,7 @@ class IrisApiClient(
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<List<UpdatesLog>>(jsonResult)
+                    json.decodeFromString<UpdatesSerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
@@ -853,17 +849,17 @@ class IrisApiClient(
     }
 
 
-    private suspend fun getPriceTgStarsResponse(count: Int, method: String): PriceTgStars? {
+    private suspend fun getPriceTgStarsResponse(count: Int, method: String): PriceTgStarsSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
-                    parameter("tgstars", count)
+                    parameter("amount", count)
                 }
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    println(jsonResult)
-                    json.decodeFromString<PriceTgStars>(jsonResult)
+
+                    json.decodeFromString<PriceTgStarsSerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {

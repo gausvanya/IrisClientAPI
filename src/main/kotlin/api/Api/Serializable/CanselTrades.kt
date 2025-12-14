@@ -7,10 +7,14 @@ import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class UpdatesLog(
-    val id: Int,
-    val date: Long,
-    val type: String,
-    @JsonNames("object")
-    val obj: HistoryData? = null
+data class CanselTradeSerialization(
+    @JsonNames("result")
+    val cansel: CancelTradesResult
+)
+
+
+@Serializable
+data class CancelTradesResult(
+    val gold: Int? = null,
+    val sweets: Double? = null
 )
