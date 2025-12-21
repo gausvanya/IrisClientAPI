@@ -10,26 +10,29 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-
-private const val irisApiVersion = "0.4"
+import java.net.Proxy
 
 
 class IrisApiClient(
     val botId: Long,
     val irisToken: String,
+    val proxyClient: Proxy? = null,
+    private val irisApiVersion: String = "0.4",
     private val baseURL: String = "https://iris-tg.ru/api/${botId}_$irisToken/v$irisApiVersion"
 ) {
     /**
-     * botId - Уникальный индетификатор вашего Telegram бота.
-     * irisToken - Секретный ключ для подключения к IrisAPI. Для получения отправьте команду '+ирис коннект'
+     * - botId - Уникальный индетификатор вашего Telegram бота.
+     * - irisToken - Секретный ключ для подключения к IrisAPI. Для получения отправьте команду '+ирис коннект'
      * в ЛС https://t.me/iris_black_bot и следуйте инструкциям.
      */
 
-
     private val json = Json { ignoreUnknownKeys = true }
     private val logger = KotlinLogging.logger {}
+
     private val httpClient = HttpClient(OkHttp) {
         engine {
+            proxy = proxyClient
+
             config {
                 followRedirects(true)
             }
@@ -392,9 +395,10 @@ class IrisApiClient(
     }
 
 
-    suspend fun cancelPriceTrade(price: Double): CancelTradesResult? {
+    suspend fun cancelPriceTrade(price: Double, volume: Int): CanselTradeSerialization? {
         /**
          * price — цена покупки. от 0.01 до 1_000_000.
+         * volume — объём золотых ирисок для отмены. Если указанный объём равен или превышает объём выбранной заявки, то заявка полностью снимается
          * Отменить все заявки по указанной цене.
          */
 
@@ -404,7 +408,7 @@ class IrisApiClient(
             throw TradesPriceException("Сумма должна быть в диапозоне от 0.01 до 1000000.0 ирисок.")
         }
 
-        return cancelPriceTradeResponse(price, method)
+        return cancelPriceTradeResponse(price, volume, method)
     }
 
 
@@ -518,16 +522,17 @@ class IrisApiClient(
     }
 
 
-    private suspend fun cancelPriceTradeResponse(price: Double, method: String): CancelTradesResult? {
+    private suspend fun cancelPriceTradeResponse(price: Double, volume: Int, method: String): CanselTradeSerialization? {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = httpClient.get("$baseURL/$method") {
                     parameter("price", price)
+                    parameter("volume", volume)
                 }
 
                 if (response.status == HttpStatusCode.OK) {
                     val jsonResult = response.bodyAsText()
-                    json.decodeFromString<CancelTradesResult>(jsonResult)
+                    json.decodeFromString<CanselTradeSerialization>(jsonResult)
                 } else throw IrisResponseException("${response.bodyAsText()} (${response.status.value})")
 
             } catch (e: IrisResponseException) {
