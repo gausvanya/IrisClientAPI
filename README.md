@@ -33,8 +33,13 @@
 ```kotlin
 
 suspend fun main() {
-    // Укажите свои botId и IrisToken
-    val api = IrisApiClient(botId = 6897200170, irisToken = "cH2i6pwEqcpDWmSaEOrEaUWjfqda52Lj")
+    // Укажите свои botId и IrisToken 
+    val api = IrisApiClient(botId = 123456789, irisToken = "abcdfj")
+    
+    // пример с использование прокси.
+    val api = IrisApiClient(
+        botId = 123456789, irisToken = "abcdfj", proxyClient = ProxyBuilder.http(Url(urlString = "http://111.222.333.44:8080"))
+    )
 
     // Получение истории голд, ирисок и очков доната
     val historyGold = api.getGoldHistory()
