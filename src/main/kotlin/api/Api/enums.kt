@@ -40,6 +40,7 @@ enum class UpdateTypes {
     GOLD_LOG
 }
 
+
 @Serializable
 enum class HistoryTypes() {
     // Валюта была отправлена пользователю.
@@ -73,6 +74,14 @@ enum class HistoryTypes() {
     // Операции на ирис-бирже.
     @SerialName("trade")
     TRADE,
+
+    // Вывод NFT из профиля в ирис-инвентарь.
+    @SerialName("top_up")
+    NFT_TOP_UP,
+
+    // Вывод NFT из ирис-инвентаря в свой профиль.
+    @SerialName("withdraw")
+    NFT_WITHDRAW,
 
     // Неизвестный тип
     @SerialName("unknown")
