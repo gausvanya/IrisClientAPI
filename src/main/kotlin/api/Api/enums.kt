@@ -37,7 +37,10 @@ enum class UpdateTypes {
     SWEETS_LOG,
 
     @SerialName("gold_log")
-    GOLD_LOG
+    GOLD_LOG,
+
+    @SerialName("nft_log")
+    NFT_LOG
 }
 
 

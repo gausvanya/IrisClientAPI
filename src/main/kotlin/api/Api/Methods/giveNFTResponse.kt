@@ -14,8 +14,8 @@ import kotlinx.coroutines.withContext
 
 
 internal suspend fun IrisApiClient.giveNFTResponse(
-    id: Int,
-    nftName: String,
+    id: Int? = null,
+    nftName: String? = null,
     userId: Long,
     comment: String? = null,
     method: String,

@@ -17,7 +17,7 @@ class IrisApiClient(
     internal val baseURL: String = "https://iris-tg.ru/api/${botId}_$irisToken/v$irisApiVersion"
 ) {
     /**
-     * @param botId — уникальный индетификатор вашего Telegram бота.
+     * @param botId — уникальный идентификатор вашего Telegram бота.
      * @param irisToken — секретный ключ для подключения к IrisAPI. Для получения отправьте команду '+ирис коннект'
      * в ЛС https://t.me/iris_black_bot и следуйте инструкциям.
      */
@@ -43,7 +43,7 @@ class IrisApiClient(
          * Передача ирисок другому пользователю.
          *
          * @param count — число голд которое вы хотите передать.
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          * @param comment — комментарий к переводу, максимальная длина текста 128 символов. Необязательно к передаче.
          * @param donateScore — количество очков доната, которые будут использоваться в передаче.
          * @param withoutDonateScore — применять ли очки доната при передаче голд. Значение по умолчанию - true.
@@ -71,7 +71,7 @@ class IrisApiClient(
          * Передача золотых ирисок другому пользователю.
          *
          * @param count — число голд которое вы хотите передать.
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          * @param comment — комментарий к переводу, максимальная длина текста 128 символов. Необязательно к передаче.
          * @param donateScore — количество очков доната, которые будут использоваться в передаче.
          * @param withoutDonateScore — применять ли очки доната при передаче голд. Значение по умолчанию - true.
@@ -96,7 +96,7 @@ class IrisApiClient(
          * Передача Telegram-Stars другому пользователю.
          *
          * @param count — число голд которое вы хотите передать.
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          * @param comment — комментарий к переводу, максимальная длина текста 128 символов. Необязательно к передаче.
          */
 
@@ -119,7 +119,7 @@ class IrisApiClient(
          * Передача очков доната другому пользователю.
          *
          * @param count — число голд которое вы хотите передать.
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          * @param comment — комментарий к переводу, максимальная длина текста 128 символов. Необязательно к передаче.
          */
 
@@ -228,7 +228,7 @@ class IrisApiClient(
         /**
          * Включение/отключение возможности передачи валюты боту для конкратного пользователя.
          *
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          **/
 
         val method = if (enable) "pocket/allow_user" else "pocket/deny_user"
@@ -316,7 +316,7 @@ class IrisApiClient(
         /**
          * Получение даты первого появления во вселенной ириса.
          *
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          */
 
         val method = "user_info/reg"
@@ -329,7 +329,7 @@ class IrisApiClient(
         /**
          * Получение информации о нахождение пользователя в спам/гнор/скам базах ириса.
          *
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          */
 
         val method = "user_info/spam"
@@ -342,7 +342,7 @@ class IrisApiClient(
         /**
          * Получение статистики активности пользователя в чатах ириса.
          *
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          */
 
         val method = "user_info/activity"
@@ -355,7 +355,7 @@ class IrisApiClient(
         /**
          * Получение информации о звездочности пользователя в ирисе.
          *
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          */
 
         val method = "user_info/stars"
@@ -368,7 +368,7 @@ class IrisApiClient(
         /**
          * Получение информации о мешке пользователя в ирисе.
          *
-         * @param userId — уникальный индетификатор Telegram получателя голд.
+         * @param userId — уникальный идентификатор Telegram получателя голд.
          */
 
         val method = "user_info/pocket"
@@ -458,7 +458,7 @@ class IrisApiClient(
         /**
          * Отменить выбранную заявку частично.
          *
-         * @param id — уникальный индитификатор заявки на Ирис-бирже.
+         * @param id — уникальный идентификатор заявки на Ирис-бирже.
          * @param volume — объём золотых ирисок для отмены. Если указанный объём равен или превышает объём выбранной заявки,
          *  то заявка полностью снимается.
          */
@@ -484,7 +484,7 @@ class IrisApiClient(
         /**
          *  История сделок на бирже ириса.
          *
-         * @param id — уникальный индитификатор сделки, начиная с которой будет выдано limit записей.
+         * @param id — уникальный идентификатор сделки, начиная с которой будет выдано limit записей.
          * По умолчанию 0 — выдаст последние limit сделок, совершённых на бирже.
          * @param limit — максимальное количество выдаваемых записей. Значения от 0 до 200. По умолчанию — 200.
          */
@@ -521,14 +521,14 @@ class IrisApiClient(
 
 
     suspend fun giveNFT(
-        id: Int, nftName: String, userId: Long, comment: String?
+        id: Int? = null, nftName: String? = null, userId: Long, comment: String?
     ): ResponseResult? {
         /**
          * Передача NFT между пользователями.
          *
-         * @param id — уникальный индификатор NFT в системе ириса.
+         * @param id — уникальный идентификатор NFT в системе ириса.
          * @param nftName — уникальное название NFT системы Telegram.
-         * @param userId — уникальный индитификатор пользователя Telegram.
+         * @param userId — уникальный идентификатор пользователя Telegram.
          * @param comment — комментарий к переводу. (необязателен).
          */
 
@@ -542,11 +542,11 @@ class IrisApiClient(
     }
 
 
-    suspend fun getNFTInfo(id: Int, nftName: String): NFTInfoSerialization? {
+    suspend fun getNFTInfo(id: Int? = null, nftName: String? = null): NFTInfoSerialization? {
         /**
          * Получение информации об NFT.
          *
-         * @param id — уникальный индитификатор NFT в системе ириса.
+         * @param id — уникальный идентификатор NFT в системе ириса.
          * @param nftName — уникальное название NFT системы Telegram.
          */
 

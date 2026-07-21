@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
-internal suspend fun IrisApiClient.getNFTInfoResponse(id: Int, nftName: String, method: String): NFTInfoSerialization? {
+internal suspend fun IrisApiClient.getNFTInfoResponse(id: Int? = null, nftName: String? = null, method: String): NFTInfoSerialization? {
     return withContext(Dispatchers.IO) {
         try {
             val response: HttpResponse = httpClient.get("$baseURL/$method") {
